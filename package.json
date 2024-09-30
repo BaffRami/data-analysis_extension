@@ -1,0 +1,38 @@
+{
+  "name": "data-analyse",
+  "displayName": "data_analyse",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.91.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onCommand:data-analysis.selectFile"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "data-analysis.selectFile",
+        "title": "Select CSV/Excel/JSON File"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "data-analysis.selectFile",
+        "key": "ctrl+shift+c",
+        "when": "editorTextFocus"
+      }
+    ]
+  },
+  "devDependencies": {
+    "vscode": "^1.1.37"
+  },
+  "dependencies": {
+    "csv-parser": "^3.0.0",
+    "xlsx": "^0.18.5"
+  }
+}
