@@ -29,6 +29,18 @@
         <span>Select Columns</span>
       </button>
 
+      <!-- Create Custom Operation Button -->
+      <button id="createCustomOperationButton" class="main-button">
+        <i class="fas fa-plus-circle"></i>
+        <span>Create Custom Operation</span>
+      </button>
+
+      <!-- New Button for Managing Custom Operations -->
+      <button id="manageCustomOperationsButton" class="main-button">
+        <i class="fas fa-edit"></i>
+        <span>Manage Custom Operations</span>
+      </button>
+
       <!-- Secondary Buttons Container -->
       <div class="secondary-buttons-container">
         <!-- Secondary Buttons -->
@@ -88,8 +100,10 @@
       </ul>
       <!-- User Input Field -->
       <div id="userInputContainer" style="display: none">
-        <label for="userInputField" id="userInputLabel"></label>
-        <input type="text" id="userInputField" />
+        <h3>User Inputs:</h3>
+        <div id="userInputFieldsContainer">
+          <!-- User input fields will be added here dynamically -->
+        </div>
       </div>
       <button id="confirmOperation" class="main-button">
         <i class="fas fa-check"></i>
@@ -129,6 +143,67 @@
       </div>
     </div>
 
+    <!-- Create Custom Operation Page -->
+    <div id="createCustomOperationPage" style="display: none">
+      <h2>Create Custom Operation</h2>
+      <p style="color: red; text-align: center">
+        Warning: Custom operations can execute code on your system. Only add
+        code you trust.
+      </p>
+      <form id="customOperationForm">
+        <label for="operationName">Operation Name:</label>
+        <input type="text" id="operationName" required />
+
+        <label for="operationCategory">Category:</label>
+        <input type="text" id="operationCategory" required autocomplete="off" />
+        <div id="categorySuggestions" class="suggestions-list">
+          <!-- Suggestions will be dynamically added here -->
+        </div>
+
+        <label for="needsUserInput">Needs User Input:</label>
+        <input type="checkbox" id="needsUserInput" />
+
+        <!-- User Inputs Container -->
+        <div id="userInputsContainer" style="display: none">
+          <h3>User Inputs:</h3>
+          <div id="userInputsList">
+            <!-- User input fields will be added here dynamically -->
+          </div>
+          <button
+            type="button"
+            id="addUserInputButton"
+            class="secondary-button"
+          >
+            <i class="fas fa-plus"></i> Add User Input
+          </button>
+        </div>
+
+        <label for="operationCode">Operation Code:</label>
+        <textarea id="operationCode" rows="10" required></textarea>
+
+        <button type="submit" class="main-button">
+          <i class="fas fa-save"></i>
+          <span>Save Operation</span>
+        </button>
+      </form>
+      <button class="backToMain main-button">
+        <i class="fas fa-arrow-left"></i>
+        <span>Go Back to Main Menu</span>
+      </button>
+    </div>
+
+    <!-- Manage Custom Operations Page -->
+    <div id="manageCustomOperationsPage" style="display: none">
+      <h2>Manage Custom Operations</h2>
+      <ul id="customOperationsList">
+        <!-- Custom operations will be dynamically added here -->
+      </ul>
+      <button class="backToMain main-button">
+        <i class="fas fa-arrow-left"></i>
+        <span>Go Back to Main Menu</span>
+      </button>
+    </div>
+
     <!-- Queued Operations Display -->
     <div id="queueContainer">
       <h3>Queued Operations:</h3>
@@ -146,23 +221,40 @@
       let selectedOperation = null;
       let selectedColumns = [];
       let selectedOperationRequiresInput = false;
+      let selectedOperationPlaceholders = [];
+      let existingCategories = []; // Store existing categories
+
+      // References to elements
+      const operationCategoryInput =
+        document.getElementById("operationCategory");
+      const categorySuggestionsContainer = document.getElementById(
+        "categorySuggestions"
+      );
 
       // Array to store queued operations
       let operationQueue = [];
 
       // Get references to user input elements
       const userInputContainer = document.getElementById("userInputContainer");
-      const userInputLabel = document.getElementById("userInputLabel");
-      const userInputField = document.getElementById("userInputField");
+      const userInputFieldsContainer = document.getElementById(
+        "userInputFieldsContainer"
+      );
 
       // Navigation functions
       function navigateToPage(pageId) {
         // Hide all pages
-        document.getElementById("mainMenu").style.display = "none";
-        document.getElementById("categoryPage").style.display = "none";
-        document.getElementById("operationPage").style.display = "none";
-        document.getElementById("columnPage").style.display = "none";
-        document.getElementById("dataPreviewContainer").style.display = "none";
+        const pages = [
+          "mainMenu",
+          "categoryPage",
+          "operationPage",
+          "columnPage",
+          "dataPreviewContainer",
+          "createCustomOperationPage",
+          "manageCustomOperationsPage", // Added page
+        ];
+        pages.forEach((id) => {
+          document.getElementById(id).style.display = "none";
+        });
         // Show the selected page
         document.getElementById(pageId).style.display = "block";
       }
@@ -174,7 +266,7 @@
         selectedOperation = null;
         selectedColumns = [];
         selectedOperationRequiresInput = false;
-        userInputField.value = "";
+        selectedOperationPlaceholders = [];
 
         // Reset UI selections
         // Deselect category
@@ -201,6 +293,7 @@
 
         // Hide user input container
         userInputContainer.style.display = "none";
+        userInputFieldsContainer.innerHTML = "";
       }
 
       // Event listeners for main menu buttons
@@ -279,16 +372,20 @@
           return;
         }
 
-        const userInput = selectedOperationRequiresInput
-          ? userInputField.value
-          : null;
+        let userInputs = [];
+        if (selectedOperationRequiresInput) {
+          const userInputFields = document.querySelectorAll(".userInputField");
+          userInputFields.forEach((input) => {
+            userInputs.push(input.value.trim());
+          });
+        }
 
         // Add the operation to the queue
         operationQueue.push({
           category: selectedCategory,
           operationName: selectedOperation,
-          columns: selectedColumns.slice(), // Copy the array
-          userInput: userInput,
+          columns: selectedColumns.slice(),
+          userInputs: userInputs,
         });
 
         // Update the operation queue display
@@ -305,12 +402,14 @@
         operationQueueList.innerHTML = ""; // Clear the list
 
         operationQueue.forEach((op, index) => {
-          const listItem = document.createElement("li");
+          let listItem = document.createElement("li");
           listItem.textContent = `${index + 1}. ${
             op.operationName
           } on [${op.columns.join(", ")}]`;
-          if (op.userInput) {
-            listItem.textContent += ` with input "${op.userInput}"`;
+          if (op.userInputs && op.userInputs.length > 0) {
+            listItem.textContent += ` with inputs: "${op.userInputs.join(
+              '", "'
+            )}"`;
           }
           operationQueueList.appendChild(listItem);
         });
@@ -325,6 +424,7 @@
 
       // Category selection handling
       function setCategoryOptions(categories) {
+        existingCategories = categories; // Store for later use
         const categoryList = document.getElementById("categoryList");
         categoryList.innerHTML = ""; // Clear previous categories
         categories.forEach((category) => {
@@ -341,16 +441,6 @@
         });
       }
 
-      document
-        .getElementById("confirmCategory")
-        .addEventListener("click", () => {
-          if (!selectedCategory) {
-            alert("Please select a category.");
-            return;
-          }
-          navigateToPage("mainMenu");
-        });
-
       // Operation selection handling
       function setOperationOptions(operations) {
         const operationList = document.getElementById("operationList");
@@ -365,11 +455,30 @@
             option.classList.add("selected");
             selectedOperation = operation.name;
             selectedOperationRequiresInput = operation.needsUserInput || false;
+            selectedOperationPlaceholders =
+              operation.userInputPlaceholders || [];
 
             if (selectedOperationRequiresInput) {
               userInputContainer.style.display = "block";
-              userInputLabel.textContent = operation.userInputPlaceholder || "";
-              userInputField.value = ""; // Clear previous input
+              userInputFieldsContainer.innerHTML = ""; // Clear previous inputs
+
+              selectedOperationPlaceholders.forEach((placeholder, index) => {
+                const inputDiv = document.createElement("div");
+                inputDiv.className = "user-input-item";
+
+                const label = document.createElement("label");
+                label.textContent = placeholder;
+
+                const inputField = document.createElement("input");
+                inputField.type = "text";
+                inputField.className = "userInputField";
+                inputField.dataset.index = index;
+                inputField.required = true;
+
+                inputDiv.appendChild(label);
+                inputDiv.appendChild(inputField);
+                userInputFieldsContainer.appendChild(inputDiv);
+              });
             } else {
               userInputContainer.style.display = "none";
             }
@@ -377,16 +486,6 @@
           operationList.appendChild(option);
         });
       }
-
-      document
-        .getElementById("confirmOperation")
-        .addEventListener("click", () => {
-          if (!selectedOperation) {
-            alert("Please select an operation.");
-            return;
-          }
-          navigateToPage("mainMenu");
-        });
 
       // Columns selection handling
       function setColumnOptions(columns) {
@@ -408,6 +507,29 @@
         });
       }
 
+      // Confirm Category Selection
+      document
+        .getElementById("confirmCategory")
+        .addEventListener("click", () => {
+          if (!selectedCategory) {
+            alert("Please select a category.");
+            return;
+          }
+          navigateToPage("mainMenu");
+        });
+
+      // Confirm Operation Selection
+      document
+        .getElementById("confirmOperation")
+        .addEventListener("click", () => {
+          if (!selectedOperation) {
+            alert("Please select an operation.");
+            return;
+          }
+          navigateToPage("mainMenu");
+        });
+
+      // Confirm Columns Selection
       document
         .getElementById("confirmColumns")
         .addEventListener("click", () => {
@@ -436,6 +558,238 @@
         navigateToPage("dataPreviewContainer"); // Show the preview page
       }
 
+      // Event listener for "Create Custom Operation" button
+      document
+        .getElementById("createCustomOperationButton")
+        .addEventListener("click", () => {
+          navigateToPage("createCustomOperationPage");
+          // Request categories to populate suggestions
+          vscode.postMessage({ command: "requestCategories" });
+        });
+
+      // Event listener for "Manage Custom Operations" button
+      document
+        .getElementById("manageCustomOperationsButton")
+        .addEventListener("click", () => {
+          navigateToPage("manageCustomOperationsPage");
+          // Request custom operations from the extension
+          vscode.postMessage({ command: "requestCustomOperations" });
+        });
+
+      // Function to display custom operations
+      function displayCustomOperations(customOperations) {
+        const customOperationsList = document.getElementById(
+          "customOperationsList"
+        );
+        customOperationsList.innerHTML = ""; // Clear previous entries
+
+        customOperations.forEach((operation) => {
+          const listItem = document.createElement("li");
+          listItem.className = "custom-operation-item";
+          listItem.innerHTML = `
+            <span><strong>${operation.name}</strong> (${operation.category})</span>
+            <button class="delete-operation-button" data-operation="${operation.fileName}">
+              <i class="fas fa-trash-alt"></i> Delete
+            </button>
+          `;
+
+          customOperationsList.appendChild(listItem);
+        });
+
+        // Add event listeners for delete buttons
+        const deleteButtons = customOperationsList.querySelectorAll(
+          ".delete-operation-button"
+        );
+        deleteButtons.forEach((button) => {
+          button.addEventListener("click", (event) => {
+            const operationFileName = event.currentTarget.dataset.operation;
+            // Instead of confirm(), send a message to the extension to confirm deletion
+            vscode.postMessage({
+              command: "confirmDeleteCustomOperation",
+              fileName: operationFileName,
+            });
+          });
+        });
+      }
+
+      // Handle deletion confirmation and process
+      window.addEventListener("message", (event) => {
+        const message = event.data;
+        switch (message.command) {
+          case "setColumns":
+            setColumnOptions(message.columns);
+            break;
+          case "setCategories":
+            setCategoryOptions(message.categories);
+            break;
+          case "setOperations":
+            setOperationOptions(message.operations);
+            break;
+          case "showDataPreview":
+            displayDataPreview(message.data);
+            break;
+          case "setCustomOperations":
+            displayCustomOperations(message.customOperations);
+            break;
+          case "deleteOperationSuccess":
+            vscode.window.showInformationMessage(message.message);
+            // Refresh the custom operations list
+            vscode.postMessage({ command: "requestCustomOperations" });
+            break;
+          case "deleteOperationFailure":
+            vscode.window.showErrorMessage(message.message);
+            break;
+          default:
+            console.error(`Unknown command received: ${message.command}`);
+            break;
+        }
+      });
+
+      // Show or hide the user inputs container based on the checkbox
+      document
+        .getElementById("needsUserInput")
+        .addEventListener("change", function () {
+          const userInputsContainer = document.getElementById(
+            "userInputsContainer"
+          );
+          if (this.checked) {
+            userInputsContainer.style.display = "block";
+          } else {
+            userInputsContainer.style.display = "none";
+            document.getElementById("userInputsList").innerHTML = "";
+          }
+        });
+
+      // Handle adding user input placeholders
+      document
+        .getElementById("addUserInputButton")
+        .addEventListener("click", function () {
+          const userInputsList = document.getElementById("userInputsList");
+          const inputCount = userInputsList.children.length + 1;
+
+          const inputDiv = document.createElement("div");
+          inputDiv.className = "user-input-item";
+
+          const label = document.createElement("label");
+          label.textContent = `User Input ${inputCount} Placeholder:`;
+
+          const inputField = document.createElement("input");
+          inputField.type = "text";
+          inputField.className = "userInputPlaceholder";
+          inputField.required = true;
+
+          inputDiv.appendChild(label);
+          inputDiv.appendChild(inputField);
+          userInputsList.appendChild(inputDiv);
+        });
+
+      // Handle the custom operation form submission
+      document
+        .getElementById("customOperationForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault(); // Prevent default form submission
+
+          // Collect form data
+          let operationName = document
+            .getElementById("operationName")
+            .value.trim();
+          let operationCategory = operationCategoryInput.value.trim();
+          const needsUserInput =
+            document.getElementById("needsUserInput").checked;
+          const operationCode = document.getElementById("operationCode").value;
+
+          // Collect multiple user input placeholders
+          let userInputPlaceholders = [];
+          if (needsUserInput) {
+            const userInputFields = document.querySelectorAll(
+              ".userInputPlaceholder"
+            );
+            userInputFields.forEach((input) => {
+              userInputPlaceholders.push(input.value.trim());
+            });
+          }
+
+          // Perform case-insensitive category matching
+          const matchedCategory = existingCategories.find(
+            (cat) => cat.toLowerCase() === operationCategory.toLowerCase()
+          );
+          if (matchedCategory) {
+            operationCategory = matchedCategory; // Use the existing category with original casing
+          }
+
+          // Send the data to the extension backend
+          vscode.postMessage({
+            command: "createCustomOperation",
+            data: {
+              name: operationName,
+              category: operationCategory,
+              needsUserInput: needsUserInput,
+              userInputPlaceholders: userInputPlaceholders,
+              operationCode: operationCode,
+            },
+          });
+
+          // Reset the form
+          this.reset();
+          document.getElementById("userInputsContainer").style.display = "none";
+          document.getElementById("userInputsList").innerHTML = "";
+
+          // Navigate back to main menu
+          navigateToPage("mainMenu");
+        });
+
+      // Event listeners for custom autocomplete
+      operationCategoryInput.addEventListener("input", onCategoryInputChange);
+
+      operationCategoryInput.addEventListener("focus", onCategoryInputFocus);
+
+      operationCategoryInput.addEventListener("blur", () => {
+        setTimeout(() => {
+          categorySuggestionsContainer.style.display = "none";
+        }, 200);
+      });
+
+      function onCategoryInputChange() {
+        const inputValue = operationCategoryInput.value.toLowerCase();
+        categorySuggestionsContainer.innerHTML = ""; // Clear previous suggestions
+
+        if (inputValue === "") {
+          categorySuggestionsContainer.style.display = "none";
+          return;
+        }
+
+        const filteredCategories = existingCategories.filter((category) =>
+          category.toLowerCase().includes(inputValue)
+        );
+
+        if (filteredCategories.length === 0) {
+          categorySuggestionsContainer.style.display = "none";
+          return;
+        }
+
+        filteredCategories.forEach((category) => {
+          const suggestionItem = document.createElement("div");
+          suggestionItem.classList.add("suggestion-item");
+          suggestionItem.textContent = category;
+
+          suggestionItem.addEventListener("click", () => {
+            operationCategoryInput.value = category;
+            categorySuggestionsContainer.innerHTML = "";
+            categorySuggestionsContainer.style.display = "none";
+          });
+
+          categorySuggestionsContainer.appendChild(suggestionItem);
+        });
+
+        categorySuggestionsContainer.style.display = "block";
+      }
+
+      function onCategoryInputFocus() {
+        if (operationCategoryInput.value !== "") {
+          onCategoryInputChange();
+        }
+      }
+
       // Message handling from the extension
       window.addEventListener("message", (event) => {
         const message = event.data;
@@ -451,6 +805,20 @@
             break;
           case "showDataPreview":
             displayDataPreview(message.data);
+            break;
+          case "setCustomOperations":
+            displayCustomOperations(message.customOperations);
+            break;
+          case "deleteOperationSuccess":
+            vscode.window.showInformationMessage(message.message);
+            // Refresh the custom operations list
+            vscode.postMessage({ command: "requestCustomOperations" });
+            break;
+          case "deleteOperationFailure":
+            vscode.window.showErrorMessage(message.message);
+            break;
+          default:
+            console.error(`Unknown command received: ${message.command}`);
             break;
         }
       });

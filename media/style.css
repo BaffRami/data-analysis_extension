@@ -6,7 +6,7 @@
   --primary-color-hover: #45a049;
   --secondary-color: #2196f3; /* Blue for secondary buttons */
   --secondary-color-hover: #1976d2;
-  --background-color: #fafafa;
+  --background-color: #fafafa; /* Light Beige */
   --text-color: #333333;
   --border-color: #dddddd;
   --accent-color: #ffc107; /* Amber for accents */
@@ -69,12 +69,14 @@ button {
 
 /* Secondary Buttons */
 .secondary-button {
-  width: 50px;
-  height: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
   margin: 10px 5px;
-  padding: 0;
+  padding: 0 10px;
   background-color: var(--secondary-color);
-  border-radius: 50%;
+  border-radius: 5px;
 }
 
 .secondary-button:hover {
@@ -86,11 +88,16 @@ button {
 }
 
 .secondary-button i {
-  font-size: 24px;
-  line-height: 50px;
+  font-size: 18px;
+  margin-right: 5px;
   color: #fff;
 }
 
+.secondary-button span {
+  color: #fff;
+}
+
+/* Secondary Buttons Container */
 .secondary-buttons-container {
   display: flex;
   justify-content: center;
@@ -139,16 +146,25 @@ ul li.selected {
   text-align: center;
 }
 
-#userInputContainer label {
+#userInputContainer h3 {
+  margin-bottom: 15px;
+}
+
+.user-input-item {
+  margin-top: 10px;
+  text-align: left;
+}
+
+.user-input-item label {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
 }
 
-#userInputContainer input {
-  width: 80%;
-  padding: 10px;
-  font-size: 16px;
+.user-input-item input {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
 }
@@ -211,6 +227,99 @@ th {
 
 #operationQueue li:nth-child(even) {
   background-color: #f9f9f9;
+}
+
+/* Custom Operation Form Styles */
+#customOperationForm {
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+}
+
+#customOperationForm label {
+  display: block;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+#customOperationForm input[type="text"],
+#customOperationForm textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+#customOperationForm input[type="checkbox"] {
+  margin-left: 10px;
+}
+
+#customOperationForm button[type="submit"] {
+  margin-top: 20px;
+}
+
+/* Styles for the custom autocomplete suggestions */
+.suggestions-list {
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid var(--border-color);
+  border-top: none;
+  max-height: 150px;
+  overflow-y: auto;
+  width: calc(100% - 22px); /* Adjust width to match input field */
+  z-index: 1000;
+}
+
+.suggestion-item {
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.suggestion-item:hover {
+  background-color: #f1f1f1;
+}
+
+/* Styles for the Manage Custom Operations Page */
+#manageCustomOperationsPage ul {
+  list-style-type: none;
+  padding: 0;
+  max-height: 400px;
+  overflow-y: auto;
+  margin: 0 auto 20px;
+  width: 80%;
+}
+
+.custom-operation-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: #fff;
+  transition: background-color 0.2s;
+}
+
+.custom-operation-item:hover {
+  background-color: #f9f9f9;
+}
+
+.delete-operation-button {
+  background-color: #dc3545; /* Red color */
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 14px;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.delete-operation-button:hover {
+  background-color: #c82333;
+}
+
+.delete-operation-button i {
+  margin-right: 5px;
 }
 
 /* Responsive Design */

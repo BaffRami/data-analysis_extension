@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const csv = require("csv-parser");
 const xlsx = require("xlsx");
+const { spawn } = require("child_process"); // Required for executing Python scripts
 
 let selectedFilePath = null;
 let customOperationsByCategory = {};
@@ -37,6 +38,7 @@ function activate(context) {
 }
 
 function loadCustomOperations(context) {
+  customOperationsByCategory = {}; // Reset the object
   const customOperationsDir = path.join(
     context.extensionPath,
     "custom_operations"
@@ -50,11 +52,19 @@ function loadCustomOperations(context) {
 
       if (fs.statSync(operationPath).isFile() && file.endsWith(".js")) {
         try {
+          delete require.cache[require.resolve(operationPath)]; // Clear cache
           const operation = require(operationPath);
-          if (!customOperationsByCategory[operation.category]) {
-            customOperationsByCategory[operation.category] = [];
+
+          // Add the file name to the operation object
+          operation.fileName = file;
+
+          // Use the category as-is to preserve original casing
+          const category = operation.category;
+
+          if (!customOperationsByCategory[category]) {
+            customOperationsByCategory[category] = [];
           }
-          customOperationsByCategory[operation.category].push(operation);
+          customOperationsByCategory[category].push(operation);
         } catch (error) {
           console.error(`Failed to load operation ${file}:`, error);
         }
@@ -102,6 +112,31 @@ async function openWebviewForSelection(context) {
     return;
   }
 
+  // Determine the file type and generate the appropriate Python code
+  const fileExtension = path.extname(selectedFilePath).toLowerCase();
+  let pandasImportCode = "import pandas as pd\n";
+  let fileLoadingCode = "";
+  const fileName = path.basename(selectedFilePath);
+
+  // Replace backslashes with forward slashes
+  const correctFilePath = selectedFilePath.replace(/\\/g, "/");
+
+  if (fileExtension === ".csv") {
+    fileLoadingCode = `df = pd.read_csv('${correctFilePath}')\n`;
+  } else if (fileExtension === ".xlsx") {
+    fileLoadingCode = `df = pd.read_excel('${correctFilePath}')\n`;
+  } else if (fileExtension === ".json") {
+    fileLoadingCode = `df = pd.read_json('${correctFilePath}')\n`;
+  } else {
+    vscode.window.showErrorMessage("Unsupported file format.");
+    return;
+  }
+
+  const fullCode = pandasImportCode + fileLoadingCode;
+
+  // Add this code to the Jupyter notebook
+  await addCodeCell(fullCode);
+
   // Open the webview
   const panel = vscode.window.createWebviewPanel(
     "dataAnalysis",
@@ -147,89 +182,155 @@ async function openWebviewForSelection(context) {
   // Handle messages from the webview
   panel.webview.onDidReceiveMessage(
     async (message) => {
-      switch (message.command) {
-        case "ready":
-          // Send available columns
-          panel.webview.postMessage({
-            command: "setColumns",
-            columns: columns,
-          });
-          // Send available categories
-          panel.webview.postMessage({
-            command: "setCategories",
-            categories: Object.keys(customOperationsByCategory),
-          });
-          break;
-
-        case "requestCategories":
-          panel.webview.postMessage({
-            command: "setCategories",
-            categories: Object.keys(customOperationsByCategory),
-          });
-          break;
-
-        case "categorySelected":
-          const selectedCategory = message.category;
-          const operations = customOperationsByCategory[selectedCategory].map(
-            (op) => ({
-              name: op.name,
-              needsUserInput: op.needsUserInput || false,
-              userInputPlaceholder: op.userInputPlaceholder || "",
-            })
-          );
-          panel.webview.postMessage({
-            command: "setOperations",
-            operations: operations,
-          });
-          break;
-
-        case "changeFile":
-          // Trigger file change process
-          const newFilePath = await promptToSelectFile(context);
-
-          if (newFilePath) {
-            selectedFilePath = newFilePath; // Only update if a new file was selected
-            columns = await getFileHeaders(selectedFilePath);
-
-            // Send the updated columns to the webview
+      try {
+        switch (message.command) {
+          case "ready":
+            // Send available columns
             panel.webview.postMessage({
               command: "setColumns",
               columns: columns,
             });
-          }
-          break;
-
-        case "previewData":
-          if (selectedFilePath) {
-            const dataPreview = await getPreviewData(selectedFilePath);
+            // Send available categories
             panel.webview.postMessage({
-              command: "showDataPreview",
-              data: dataPreview,
+              command: "setCategories",
+              categories: Object.keys(customOperationsByCategory),
             });
-          } else {
-            vscode.window.showErrorMessage("No file selected for preview.");
-          }
-          break;
+            break;
 
-        case "performOperations":
-          // Handle multiple operations
-          for (const op of message.operations) {
-            const operation = findOperationByName(op.operationName);
-            if (operation) {
-              await handleOperation(op.columns, operation, op.userInput);
-            } else {
-              vscode.window.showErrorMessage(
-                `Unsupported operation selected: ${op.operationName}.`
-              );
+          case "requestCategories":
+            panel.webview.postMessage({
+              command: "setCategories",
+              categories: Object.keys(customOperationsByCategory),
+            });
+            break;
+
+          case "categorySelected":
+            const selectedCategory = message.category;
+            const operations = customOperationsByCategory[selectedCategory].map(
+              (op) => ({
+                name: op.name,
+                needsUserInput: op.needsUserInput || false,
+                userInputPlaceholders: op.userInputPlaceholders || [],
+              })
+            );
+            panel.webview.postMessage({
+              command: "setOperations",
+              operations: operations,
+            });
+            break;
+
+          case "changeFile":
+            // Trigger file change process
+            const newFilePath = await promptToSelectFile(context);
+
+            if (newFilePath) {
+              selectedFilePath = newFilePath; // Only update if a new file was selected
+              columns = await getFileHeaders(selectedFilePath);
+
+              // Send the updated columns to the webview
+              panel.webview.postMessage({
+                command: "setColumns",
+                columns: columns,
+              });
             }
-          }
-          break;
+            break;
 
-        default:
-          console.error(
-            `Unknown command received from webview: ${message.command}`
-          );
-          break;
+          case "previewData":
+            if (selectedFilePath) {
+              const dataPreview = await getPreviewData(selectedFilePath);
+              panel.webview.postMessage({
+                command: "showDataPreview",
+                data: dataPreview,
+              });
+            } else {
+              vscode.window.showErrorMessage("No file selected for preview.");
+            }
+            break;
+
+          case "performOperations":
+            // Handle multiple operations
+            for (const op of message.operations) {
+              const operation = findOperationByName(op.operationName);
+              if (operation) {
+                const userInputs = op.userInputs || [];
+                await handleOperation(op.columns, operation, userInputs);
+              } else {
+                vscode.window.showErrorMessage(
+                  `Unsupported operation selected: ${op.operationName}.`
+                );
+              }
+            }
+            break;
+
+          case "createCustomOperation":
+            const operationData = message.data;
+            await createCustomOperationFile(operationData, context);
+            // Reload custom operations
+            loadCustomOperations(context);
+            // Send updated categories to the webview
+            panel.webview.postMessage({
+              command: "setCategories",
+              categories: Object.keys(customOperationsByCategory),
+            });
+            break;
+
+          case "requestCustomOperations":
+            // Send the list of custom operations to the webview
+            const customOperations = getCustomOperationsList();
+            panel.webview.postMessage({
+              command: "setCustomOperations",
+              customOperations: customOperations,
+            });
+            break;
+
+          case "confirmDeleteCustomOperation":
+            // Show confirmation dialog to the user
+            const confirmDeletion = await vscode.window.showWarningMessage(
+              `Are you sure you want to delete "${message.fileName}"?`,
+              { modal: true },
+              "Yes",
+              "No"
+            );
+
+            if (confirmDeletion === "Yes") {
+              // Proceed with deletion
+              await deleteCustomOperationFile(message.fileName, context);
+              // Reload custom operations
+              loadCustomOperations(context);
+              // Notify the webview to refresh the list
+              const updatedCustomOperations = getCustomOperationsList();
+              panel.webview.postMessage({
+                command: "setCustomOperations",
+                customOperations: updatedCustomOperations,
+              });
+              // Update categories
+              panel.webview.postMessage({
+                command: "setCategories",
+                categories: Object.keys(customOperationsByCategory),
+              });
+              // Inform the webview of successful deletion
+              panel.webview.postMessage({
+                command: "deleteOperationSuccess",
+                message: `Successfully deleted "${message.fileName}".`,
+              });
+            } else {
+              // Inform the webview that deletion was canceled
+              panel.webview.postMessage({
+                command: "deleteOperationFailure",
+                message: `Deletion of "${message.fileName}" was canceled.`,
+              });
+            }
+            break;
+
+          default:
+            console.error(
+              `Unknown command received from webview: ${message.command}`
+            );
+            break;
+        }
+      } catch (error) {
+        vscode.window.showErrorMessage(`Error: ${error.message}`);
+        console.error("Error handling message:", error);
       }
     },
     undefined,
@@ -303,9 +404,20 @@ function getPreviewData(filePath) {
   });
 }
 
-async function handleOperation(columns, operation, userInput) {
+async function handleOperation(columns, operation, userInputs) {
   try {
-    const pandasCode = operation.operation(columns, userInput); // Pass the user input
+    // Step 1: Process user inputs to replace &cX placeholders with actual column values
+    const processedUserInputs = userInputs.map((input) => {
+      return input.replace(/&c(\d+)/g, (match, index) => {
+        // Replace &c0 with columns[0], &c1 with columns[1], etc.
+        return columns[index] || match; // If column exists, replace; else, keep original
+      });
+    });
+
+    // Step 2: Generate pandas code with processed user inputs
+    const pandasCode = operation.operation(columns, processedUserInputs); // Pass the processed user inputs array
+
+    // Step 3: Add the generated code to the Jupyter notebook
     await addCodeCell(pandasCode); // Add the code to Jupyter notebook
   } catch (error) {
     vscode.window.showErrorMessage(
@@ -330,26 +442,67 @@ async function addCodeCell(code) {
     }
 
     const notebook = editor.notebook;
+    const activeCell = editor.selection.active;
 
-    // Prepare a new code cell with the generated code
-    const cell = new vscode.NotebookCellData(
-      vscode.NotebookCellKind.Code,
-      code,
-      "python"
-    );
+    if (activeCell) {
+      // Check if the active cell is a code cell
+      if (
+        notebook.cellAt(activeCell.index).kind === vscode.NotebookCellKind.Code
+      ) {
+        // If a code cell is selected, append the code to the active cell's document
+        const edit = new vscode.WorkspaceEdit();
+        const position = new vscode.Position(
+          notebook.cellAt(activeCell.index).document.lineCount,
+          0
+        );
 
-    // Create a workspace edit to insert the new cell
-    const edit = new vscode.WorkspaceEdit();
-    edit.set(notebook.uri, [
-      vscode.NotebookEdit.insertCells(notebook.cellCount, [cell]),
-    ]);
+        edit.insert(
+          notebook.cellAt(activeCell.index).document.uri,
+          position,
+          `\n${code}`
+        );
 
-    // Apply the workspace edit to add the new cell
-    await vscode.workspace.applyEdit(edit);
+        // Apply the edit to modify the current cell
+        await vscode.workspace.applyEdit(edit);
+        vscode.window.showInformationMessage(
+          "Appended code to the selected cell."
+        );
+      } else {
+        // If the selected cell isn't a code cell, insert a new code cell after it
+        const newCell = new vscode.NotebookCellData(
+          vscode.NotebookCellKind.Code,
+          code,
+          "python"
+        );
 
-    vscode.window.showInformationMessage(
-      "Added new code cell to Jupyter notebook"
-    );
+        const edit = new vscode.WorkspaceEdit();
+        edit.set(notebook.uri, [
+          vscode.NotebookEdit.insertCells(activeCell.index + 1, [newCell]),
+        ]);
+
+        // Apply the edit to add a new cell
+        await vscode.workspace.applyEdit(edit);
+        vscode.window.showInformationMessage(
+          "Added new code cell after the selected cell."
+        );
+      }
+    } else {
+      // If no active cell is selected, insert a new code cell at the end
+      const newCell = new vscode.NotebookCellData(
+        vscode.NotebookCellKind.Code,
+        code,
+        "python"
+      );
+
+      const edit = new vscode.WorkspaceEdit();
+      edit.set(notebook.uri, [
+        vscode.NotebookEdit.insertCells(notebook.cellCount, [newCell]),
+      ]);
+
+      // Apply the workspace edit to add the new cell
+      await vscode.workspace.applyEdit(edit);
+      vscode.window.showInformationMessage("Added new code cell at the end.");
+    }
 
     // Focus back on the notebook editor
     await vscode.window.showNotebookDocument(notebook, {
@@ -361,9 +514,93 @@ async function addCodeCell(code) {
   }
 }
 
-function deactivate(context) {
-  // Clear the stored file path on deactivation
-  context.workspaceState.update("selectedFile", null);
+async function createCustomOperationFile(operationData, context) {
+  const customOperationsDir = path.join(
+    context.extensionPath,
+    "custom_operations"
+  );
+
+  // Ensure the directory exists
+  if (!fs.existsSync(customOperationsDir)) {
+    fs.mkdirSync(customOperationsDir);
+  }
+
+  // Generate a valid filename
+  const fileName = `${operationData.name.replace(/\s+/g, "_")}.js`;
+  const filePath = path.join(customOperationsDir, fileName);
+
+  // Replace placeholders in the operation code
+  let operationCode = operationData.operationCode;
+
+  // Replace column placeholders
+  operationCode = operationCode.replace(/&c(\d+)/g, (match, index) => {
+    return `\${columns[${index}]}`;
+  });
+
+  // Replace user input placeholders
+  if (operationData.needsUserInput) {
+    operationCode = operationCode.replace(/&i(\d+)/g, (match, index) => {
+      return `\${userInputs[${index}]}`;
+    });
+  }
+
+  // Create the content of the JS file
+  const fileContent = `
+module.exports = {
+  name: "${operationData.name}",
+  category: "${operationData.category}",
+  needsUserInput: ${operationData.needsUserInput},
+  userInputPlaceholders: ${JSON.stringify(operationData.userInputPlaceholders)},
+  operation: (columns, userInputs) => {
+    return \`
+${operationCode}
+    \`;
+  },
+};
+`;
+
+  // Write the file
+  fs.writeFileSync(filePath, fileContent, "utf8");
+}
+
+// Function to get the list of custom operations
+function getCustomOperationsList() {
+  let customOperations = [];
+  for (const category in customOperationsByCategory) {
+    customOperationsByCategory[category].forEach((op) => {
+      customOperations.push({
+        name: op.name,
+        category: op.category,
+        fileName: op.fileName || `${op.name.replace(/\s+/g, "_")}.js`,
+      });
+    });
+  }
+  return customOperations;
+}
+
+// Function to delete a custom operation file
+async function deleteCustomOperationFile(fileName, context) {
+  const customOperationsDir = path.join(
+    context.extensionPath,
+    "custom_operations"
+  );
+  const filePath = path.join(customOperationsDir, fileName);
+
+  if (fs.existsSync(filePath)) {
+    try {
+      fs.unlinkSync(filePath);
+      vscode.window.showInformationMessage(
+        `Deleted custom operation "${fileName}".`
+      );
+    } catch (error) {
+      vscode.window.showErrorMessage(
+        `Failed to delete operation: ${error.message}`
+      );
+      console.error("Delete operation error:", error);
+    }
+  } else {
+    vscode.window.showErrorMessage(`Operation file "${fileName}" not found.`);
+  }
 }
 
 // Utility function to find operation by name across categories
@@ -377,6 +614,11 @@ function findOperationByName(name) {
     }
   }
   return null;
+}
+
+function deactivate(context) {
+  // Clear the stored file path on deactivation
+  context.workspaceState.update("selectedFile", null);
 }
 
 module.exports = {
