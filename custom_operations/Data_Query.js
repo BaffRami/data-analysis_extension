@@ -1,4 +1,3 @@
-
 module.exports = {
   name: "Data Query",
   category: "Data Cleaning",

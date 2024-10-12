@@ -16,17 +16,9 @@
     <!-- Main Menu -->
     <div id="mainMenu">
       <!-- Main Buttons with Icons -->
-      <button id="categoryButton" class="main-button">
-        <i class="fas fa-list"></i>
-        <span>Select Category</span>
-      </button>
-      <button id="operationButton" class="main-button">
-        <i class="fas fa-cogs"></i>
-        <span>Select Operation</span>
-      </button>
-      <button id="columnButton" class="main-button">
-        <i class="fas fa-columns"></i>
-        <span>Select Columns</span>
+      <button id="startAnalysisButton" class="main-button">
+        <i class="fas fa-play-circle"></i>
+        <span>Start Analysis</span>
       </button>
 
       <!-- Create Custom Operation Button -->
@@ -39,6 +31,12 @@
       <button id="manageCustomOperationsButton" class="main-button">
         <i class="fas fa-edit"></i>
         <span>Manage Custom Operations</span>
+      </button>
+
+      <!-- New Button for Managing Categories -->
+      <button id="manageCategoriesButton" class="main-button">
+        <i class="fas fa-folder-minus"></i>
+        <span>Manage Categories</span>
       </button>
 
       <!-- Secondary Buttons Container -->
@@ -82,13 +80,13 @@
       <ul id="categoryList">
         <!-- Categories will be dynamically added here -->
       </ul>
-      <button id="confirmCategory" class="main-button">
-        <i class="fas fa-check"></i>
-        <span>Confirm</span>
+      <button id="nextFromCategory" class="main-button">
+        <i class="fas fa-arrow-right"></i>
+        <span>Next</span>
       </button>
-      <button class="backToMain main-button">
+      <button class="backButton main-button">
         <i class="fas fa-arrow-left"></i>
-        <span>Go Back to Main Menu</span>
+        <span>Back</span>
       </button>
     </div>
 
@@ -105,13 +103,21 @@
           <!-- User input fields will be added here dynamically -->
         </div>
       </div>
-      <button id="confirmOperation" class="main-button">
-        <i class="fas fa-check"></i>
-        <span>Confirm</span>
+      <button id="nextFromOperation" class="main-button">
+        <i class="fas fa-arrow-right"></i>
+        <span>Next</span>
       </button>
-      <button class="backToMain main-button">
+      <button id="finishOperation" class="main-button" style="display: none">
+        <i class="fas fa-check"></i>
+        <span>Finish</span>
+      </button>
+      <button class="backButton main-button">
         <i class="fas fa-arrow-left"></i>
-        <span>Go Back to Main Menu</span>
+        <span>Back</span>
+      </button>
+      <button class="mainMenuButton main-button">
+        <i class="fas fa-home"></i>
+        <span>Main Menu</span>
       </button>
     </div>
 
@@ -121,22 +127,26 @@
       <ul id="columnList">
         <!-- Columns will be dynamically added here -->
       </ul>
-      <button id="confirmColumns" class="main-button">
+      <button id="finishColumns" class="main-button">
         <i class="fas fa-check"></i>
-        <span>Confirm</span>
+        <span>Finish</span>
       </button>
-      <button class="backToMain main-button">
+      <button class="backButton main-button">
         <i class="fas fa-arrow-left"></i>
-        <span>Go Back to Main Menu</span>
+        <span>Back</span>
+      </button>
+      <button class="mainMenuButton main-button">
+        <i class="fas fa-home"></i>
+        <span>Main Menu</span>
       </button>
     </div>
 
     <!-- Data Preview Container -->
     <div id="dataPreviewContainer" style="display: none">
       <h3>Data Preview:</h3>
-      <button class="backToMain main-button">
+      <button class="backButton main-button">
         <i class="fas fa-arrow-left"></i>
-        <span>Go Back to Main Menu</span>
+        <span>Back</span>
       </button>
       <div class="data-table-container">
         <table id="dataPreviewTable"></table>
@@ -146,50 +156,78 @@
     <!-- Create Custom Operation Page -->
     <div id="createCustomOperationPage" style="display: none">
       <h2>Create Custom Operation</h2>
-      <p style="color: red; text-align: center">
-        Warning: Custom operations can execute code on your system. Only add
-        code you trust.
-      </p>
       <form id="customOperationForm">
         <label for="operationName">Operation Name:</label>
         <input type="text" id="operationName" required />
 
-        <label for="operationCategory">Category:</label>
+        <label for="operationCategory">Operation Category:</label>
         <input type="text" id="operationCategory" required autocomplete="off" />
-        <div id="categorySuggestions" class="suggestions-list">
-          <!-- Suggestions will be dynamically added here -->
-        </div>
+        <!-- Container for category suggestions -->
+        <div id="categorySuggestions" class="suggestions-list"></div>
 
-        <label for="needsUserInput">Needs User Input:</label>
-        <input type="checkbox" id="needsUserInput" />
+        <label>
+          <input type="checkbox" id="needsUserInput" />
+          Requires User Input
+        </label>
 
         <!-- User Inputs Container -->
         <div id="userInputsContainer" style="display: none">
-          <h3>User Inputs:</h3>
-          <div id="userInputsList">
-            <!-- User input fields will be added here dynamically -->
-          </div>
           <button
             type="button"
             id="addUserInputButton"
             class="secondary-button"
           >
-            <i class="fas fa-plus"></i> Add User Input
+            <i class="fas fa-plus"></i>
+            <span>Add User Input Placeholder</span>
           </button>
+          <button
+            type="button"
+            id="removeUserInputButton"
+            class="secondary-button"
+          >
+            <i class="fas fa-minus"></i>
+            <span>Remove Last User Input</span>
+          </button>
+          <div id="userInputsList"></div>
         </div>
 
         <label for="operationCode">Operation Code:</label>
-        <textarea id="operationCode" rows="10" required></textarea>
+        <textarea id="operationCode" rows="8" required></textarea>
 
-        <button type="submit" class="main-button">
+        <label>
+          <input type="checkbox" id="requiresColumns" checked />
+          Requires Column Selection
+        </label>
+
+        <!-- Column Placeholder Note -->
+        <div id="columnPlaceholderNote" style="display: none">
+          <p>
+            Note: You cannot use column placeholders (&c0, &c1, etc.) when
+            "Requires Column Selection" is unchecked.
+          </p>
+        </div>
+
+        <button
+          type="submit"
+          id="submitCustomOperationButton"
+          class="main-button"
+        >
           <i class="fas fa-save"></i>
-          <span>Save Operation</span>
+          <span>Save Custom Operation</span>
+        </button>
+        <button
+          type="button"
+          id="resetCustomOperationFormButton"
+          class="main-button"
+        >
+          <i class="fas fa-undo-alt"></i>
+          <span>Reset All Fields</span>
+        </button>
+        <button class="backButton main-button" type="button">
+          <i class="fas fa-arrow-left"></i>
+          <span>Back</span>
         </button>
       </form>
-      <button class="backToMain main-button">
-        <i class="fas fa-arrow-left"></i>
-        <span>Go Back to Main Menu</span>
-      </button>
     </div>
 
     <!-- Manage Custom Operations Page -->
@@ -198,9 +236,21 @@
       <ul id="customOperationsList">
         <!-- Custom operations will be dynamically added here -->
       </ul>
-      <button class="backToMain main-button">
+      <button class="backButton main-button">
         <i class="fas fa-arrow-left"></i>
-        <span>Go Back to Main Menu</span>
+        <span>Back</span>
+      </button>
+    </div>
+
+    <!-- Manage Categories Page -->
+    <div id="manageCategoriesPage" style="display: none">
+      <h2>Manage Categories</h2>
+      <ul id="categoriesList">
+        <!-- Categories will be dynamically added here -->
+      </ul>
+      <button class="backButton main-button">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back</span>
       </button>
     </div>
 
@@ -222,6 +272,7 @@
       let selectedColumns = [];
       let selectedOperationRequiresInput = false;
       let selectedOperationPlaceholders = [];
+      let selectedOperationRequiresColumns = false;
       let existingCategories = []; // Store existing categories
 
       // References to elements
@@ -233,6 +284,9 @@
 
       // Array to store queued operations
       let operationQueue = [];
+
+      // Navigation history for back button functionality
+      let navigationHistory = [];
 
       // Get references to user input elements
       const userInputContainer = document.getElementById("userInputContainer");
@@ -250,13 +304,19 @@
           "columnPage",
           "dataPreviewContainer",
           "createCustomOperationPage",
-          "manageCustomOperationsPage", // Added page
+          "manageCustomOperationsPage",
+          "manageCategoriesPage",
         ];
         pages.forEach((id) => {
           document.getElementById(id).style.display = "none";
         });
         // Show the selected page
         document.getElementById(pageId).style.display = "block";
+
+        // Update navigation history
+        if (navigationHistory[navigationHistory.length - 1] !== pageId) {
+          navigationHistory.push(pageId);
+        }
       }
 
       // Reset selections function
@@ -267,6 +327,7 @@
         selectedColumns = [];
         selectedOperationRequiresInput = false;
         selectedOperationPlaceholders = [];
+        selectedOperationRequiresColumns = false;
 
         // Reset UI selections
         // Deselect category
@@ -296,41 +357,33 @@
         userInputFieldsContainer.innerHTML = "";
       }
 
-      // Event listeners for main menu buttons
+      // Event listener for "Start Analysis" button
       document
-        .getElementById("categoryButton")
+        .getElementById("startAnalysisButton")
         .addEventListener("click", () => {
+          resetSelections(); // Reset previous selections
           navigateToPage("categoryPage");
           // Request categories from the extension
           vscode.postMessage({ command: "requestCategories" });
         });
 
+      // Event listener for "Manage Categories" button
       document
-        .getElementById("operationButton")
+        .getElementById("manageCategoriesButton")
         .addEventListener("click", () => {
-          if (!selectedCategory) {
-            alert("Please select a category first.");
-            return;
-          }
-          navigateToPage("operationPage");
-          // Request operations for the selected category
-          vscode.postMessage({
-            command: "categorySelected",
-            category: selectedCategory,
-          });
+          navigateToPage("manageCategoriesPage");
+          // Request categories from the extension
+          vscode.postMessage({ command: "requestCategoriesForManagement" });
         });
 
-      document.getElementById("columnButton").addEventListener("click", () => {
-        navigateToPage("columnPage");
-        // Columns should have been received on startup
-      });
-
+      // Event listener for "Change File" button
       document
         .getElementById("changeFileButton")
         .addEventListener("click", () => {
           vscode.postMessage({ command: "changeFile" });
         });
 
+      // Event listener for "Preview Data" button
       document.getElementById("previewButton").addEventListener("click", () => {
         vscode.postMessage({ command: "previewData" });
       });
@@ -361,14 +414,12 @@
 
       // Function to queue an operation
       function queueOperation() {
-        if (
-          !selectedCategory ||
-          !selectedOperation ||
-          selectedColumns.length === 0
-        ) {
-          alert(
-            "Please ensure you have selected a category, operation, and at least one column."
-          );
+        if (!selectedCategory || !selectedOperation) {
+          alert("Please ensure you have completed the operation selection.");
+          return;
+        }
+        if (selectedOperationRequiresColumns && selectedColumns.length === 0) {
+          alert("Please select at least one column for this operation.");
           return;
         }
 
@@ -415,9 +466,24 @@
         });
       }
 
-      // Event listeners for "Go Back to Main Menu" buttons
-      document.querySelectorAll(".backToMain").forEach((button) => {
+      // Event listeners for "Back" buttons
+      document.querySelectorAll(".backButton").forEach((button) => {
         button.addEventListener("click", () => {
+          navigationHistory.pop(); // Remove current page
+          const previousPage = navigationHistory.pop(); // Get the previous page
+          if (previousPage) {
+            navigateToPage(previousPage);
+          } else {
+            navigateToPage("mainMenu");
+          }
+        });
+      });
+
+      // Event listeners for "Main Menu" buttons
+      document.querySelectorAll(".mainMenuButton").forEach((button) => {
+        button.addEventListener("click", () => {
+          navigationHistory = [];
+          resetSelections();
           navigateToPage("mainMenu");
         });
       });
@@ -457,6 +523,20 @@
             selectedOperationRequiresInput = operation.needsUserInput || false;
             selectedOperationPlaceholders =
               operation.userInputPlaceholders || [];
+            selectedOperationRequiresColumns =
+              operation.requiresColumns || false;
+
+            // Show or hide the appropriate buttons
+            if (selectedOperationRequiresColumns) {
+              document.getElementById("nextFromOperation").style.display =
+                "inline-flex";
+              document.getElementById("finishOperation").style.display = "none";
+            } else {
+              document.getElementById("nextFromOperation").style.display =
+                "none";
+              document.getElementById("finishOperation").style.display =
+                "inline-flex";
+            }
 
             if (selectedOperationRequiresInput) {
               userInputContainer.style.display = "block";
@@ -507,20 +587,36 @@
         });
       }
 
-      // Confirm Category Selection
+      // Next button from Category Page
       document
-        .getElementById("confirmCategory")
+        .getElementById("nextFromCategory")
         .addEventListener("click", () => {
           if (!selectedCategory) {
             alert("Please select a category.");
             return;
           }
-          navigateToPage("mainMenu");
+          // Request operations for the selected category
+          vscode.postMessage({
+            command: "categorySelected",
+            category: selectedCategory,
+          });
+          navigateToPage("operationPage");
         });
 
-      // Confirm Operation Selection
+      // Next button from Operation Page
       document
-        .getElementById("confirmOperation")
+        .getElementById("nextFromOperation")
+        .addEventListener("click", () => {
+          if (!selectedOperation) {
+            alert("Please select an operation.");
+            return;
+          }
+          navigateToPage("columnPage");
+        });
+
+      // Finish button on Operation Page (for operations that don't require columns)
+      document
+        .getElementById("finishOperation")
         .addEventListener("click", () => {
           if (!selectedOperation) {
             alert("Please select an operation.");
@@ -529,16 +625,14 @@
           navigateToPage("mainMenu");
         });
 
-      // Confirm Columns Selection
-      document
-        .getElementById("confirmColumns")
-        .addEventListener("click", () => {
-          if (selectedColumns.length === 0) {
-            alert("Please select at least one column.");
-            return;
-          }
-          navigateToPage("mainMenu");
-        });
+      // Finish button on Columns Page
+      document.getElementById("finishColumns").addEventListener("click", () => {
+        if (selectedOperationRequiresColumns && selectedColumns.length === 0) {
+          alert("Please select at least one column.");
+          return;
+        }
+        navigateToPage("mainMenu");
+      });
 
       // Display data preview
       function displayDataPreview(data) {
@@ -563,8 +657,6 @@
         .getElementById("createCustomOperationButton")
         .addEventListener("click", () => {
           navigateToPage("createCustomOperationPage");
-          // Request categories to populate suggestions
-          vscode.postMessage({ command: "requestCategories" });
         });
 
       // Event listener for "Manage Custom Operations" button
@@ -587,11 +679,11 @@
           const listItem = document.createElement("li");
           listItem.className = "custom-operation-item";
           listItem.innerHTML = `
-            <span><strong>${operation.name}</strong> (${operation.category})</span>
-            <button class="delete-operation-button" data-operation="${operation.fileName}">
-              <i class="fas fa-trash-alt"></i> Delete
-            </button>
-          `;
+          <span><strong>${operation.name}</strong> (${operation.category})</span>
+          <button class="delete-operation-button" data-filename="${operation.fileName}">
+            <i class="fas fa-trash-alt"></i> Delete
+          </button>
+        `;
 
           customOperationsList.appendChild(listItem);
         });
@@ -602,48 +694,49 @@
         );
         deleteButtons.forEach((button) => {
           button.addEventListener("click", (event) => {
-            const operationFileName = event.currentTarget.dataset.operation;
-            // Instead of confirm(), send a message to the extension to confirm deletion
+            const fileName = event.currentTarget.dataset.filename;
+            // Send a message to the extension to confirm deletion
             vscode.postMessage({
               command: "confirmDeleteCustomOperation",
-              fileName: operationFileName,
+              fileName: fileName,
             });
           });
         });
       }
 
-      // Handle deletion confirmation and process
-      window.addEventListener("message", (event) => {
-        const message = event.data;
-        switch (message.command) {
-          case "setColumns":
-            setColumnOptions(message.columns);
-            break;
-          case "setCategories":
-            setCategoryOptions(message.categories);
-            break;
-          case "setOperations":
-            setOperationOptions(message.operations);
-            break;
-          case "showDataPreview":
-            displayDataPreview(message.data);
-            break;
-          case "setCustomOperations":
-            displayCustomOperations(message.customOperations);
-            break;
-          case "deleteOperationSuccess":
-            vscode.window.showInformationMessage(message.message);
-            // Refresh the custom operations list
-            vscode.postMessage({ command: "requestCustomOperations" });
-            break;
-          case "deleteOperationFailure":
-            vscode.window.showErrorMessage(message.message);
-            break;
-          default:
-            console.error(`Unknown command received: ${message.command}`);
-            break;
-        }
-      });
+      // Function to display categories in the Manage Categories Page
+      function displayCategoriesForManagement(categories) {
+        const categoriesList = document.getElementById("categoriesList");
+        categoriesList.innerHTML = ""; // Clear previous entries
+
+        categories.forEach((category) => {
+          const listItem = document.createElement("li");
+          listItem.className = "category-item";
+          listItem.innerHTML = `
+          <span><strong>${category}</strong></span>
+          <button class="delete-category-button" data-category="${category}">
+            <i class="fas fa-trash-alt"></i> Delete
+          </button>
+        `;
+
+          categoriesList.appendChild(listItem);
+        });
+
+        // Add event listeners for delete buttons
+        const deleteButtons = categoriesList.querySelectorAll(
+          ".delete-category-button"
+        );
+        deleteButtons.forEach((button) => {
+          button.addEventListener("click", (event) => {
+            const categoryName = event.currentTarget.dataset.category;
+            // Send a message to the extension to confirm deletion
+            vscode.postMessage({
+              command: "confirmDeleteCategory",
+              category: categoryName,
+            });
+          });
+        });
+      }
 
       // Show or hide the user inputs container based on the checkbox
       document
@@ -656,6 +749,7 @@
             userInputsContainer.style.display = "block";
           } else {
             userInputsContainer.style.display = "none";
+            // Clear the user inputs list
             document.getElementById("userInputsList").innerHTML = "";
           }
         });
@@ -665,13 +759,13 @@
         .getElementById("addUserInputButton")
         .addEventListener("click", function () {
           const userInputsList = document.getElementById("userInputsList");
-          const inputCount = userInputsList.children.length + 1;
+          const inputCount = userInputsList.children.length;
 
           const inputDiv = document.createElement("div");
           inputDiv.className = "user-input-item";
 
           const label = document.createElement("label");
-          label.textContent = `User Input ${inputCount} Placeholder:`;
+          label.textContent = `User Input Placeholder ${inputCount + 1}:`;
 
           const inputField = document.createElement("input");
           inputField.type = "text";
@@ -683,20 +777,28 @@
           userInputsList.appendChild(inputDiv);
         });
 
+      // Event listener for "Remove Last User Input" button
+      document
+        .getElementById("removeUserInputButton")
+        .addEventListener("click", function () {
+          const userInputsList = document.getElementById("userInputsList");
+          if (userInputsList.children.length > 0) {
+            userInputsList.removeChild(userInputsList.lastChild);
+          }
+        });
+
       // Handle the custom operation form submission
       document
         .getElementById("customOperationForm")
-        .addEventListener("submit", function (event) {
-          event.preventDefault(); // Prevent default form submission
-
-          // Collect form data
-          let operationName = document
-            .getElementById("operationName")
-            .value.trim();
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const operationName = document.getElementById("operationName").value;
           let operationCategory = operationCategoryInput.value.trim();
           const needsUserInput =
             document.getElementById("needsUserInput").checked;
           const operationCode = document.getElementById("operationCode").value;
+          const requiresColumns =
+            document.getElementById("requiresColumns").checked;
 
           // Collect multiple user input placeholders
           let userInputPlaceholders = [];
@@ -717,6 +819,21 @@
             operationCategory = matchedCategory; // Use the existing category with original casing
           }
 
+          // Validate operation code for column placeholders
+          const columnPlaceholderRegex = /&c\d+/;
+          if (!requiresColumns && columnPlaceholderRegex.test(operationCode)) {
+            alert(
+              "You cannot use &c0, &c1, etc., in the operation code when 'Requires Column Selection' is unchecked."
+            );
+            return;
+          }
+          if (requiresColumns && !columnPlaceholderRegex.test(operationCode)) {
+            alert(
+              "Operation code must contain at least one &c0, &c1, etc., when 'Requires Column Selection' is checked."
+            );
+            return;
+          }
+
           // Send the data to the extension backend
           vscode.postMessage({
             command: "createCustomOperation",
@@ -726,6 +843,7 @@
               needsUserInput: needsUserInput,
               userInputPlaceholders: userInputPlaceholders,
               operationCode: operationCode,
+              requiresColumns: requiresColumns, // Include this field
             },
           });
 
@@ -734,8 +852,28 @@
           document.getElementById("userInputsContainer").style.display = "none";
           document.getElementById("userInputsList").innerHTML = "";
 
+          // Hide column placeholder note
+          document.getElementById("columnPlaceholderNote").style.display =
+            "none";
+
           // Navigate back to main menu
           navigateToPage("mainMenu");
+        });
+
+      // Event listener for "Reset All Fields" button
+      document
+        .getElementById("resetCustomOperationFormButton")
+        .addEventListener("click", function () {
+          // Reset the form
+          document.getElementById("customOperationForm").reset();
+          // Hide and clear the user inputs container
+          document.getElementById("userInputsContainer").style.display = "none";
+          document.getElementById("userInputsList").innerHTML = "";
+          // Hide column placeholder note
+          document.getElementById("columnPlaceholderNote").style.display =
+            "none";
+          // Hide category suggestions
+          categorySuggestionsContainer.style.display = "none";
         });
 
       // Event listeners for custom autocomplete
@@ -800,6 +938,9 @@
           case "setCategories":
             setCategoryOptions(message.categories);
             break;
+          case "setCategoriesForManagement":
+            displayCategoriesForManagement(message.categories);
+            break;
           case "setOperations":
             setOperationOptions(message.operations);
             break;
@@ -808,6 +949,21 @@
             break;
           case "setCustomOperations":
             displayCustomOperations(message.customOperations);
+            break;
+          case "categoryDeleted":
+            // If the current page is managing categories, refresh the list
+            if (
+              navigationHistory[navigationHistory.length - 1] ===
+              "manageCategoriesPage"
+            ) {
+              vscode.postMessage({ command: "requestCategoriesForManagement" });
+            }
+            break;
+          case "deleteCategorySuccess":
+            vscode.window.showInformationMessage(message.message);
+            break;
+          case "deleteCategoryFailure":
+            vscode.window.showErrorMessage(message.message);
             break;
           case "deleteOperationSuccess":
             vscode.window.showInformationMessage(message.message);
@@ -822,6 +978,20 @@
             break;
         }
       });
+
+      // Show or hide the column placeholder note based on the checkbox
+      document
+        .getElementById("requiresColumns")
+        .addEventListener("change", function () {
+          const columnPlaceholderNote = document.getElementById(
+            "columnPlaceholderNote"
+          );
+          if (this.checked) {
+            columnPlaceholderNote.style.display = "none";
+          } else {
+            columnPlaceholderNote.style.display = "block";
+          }
+        });
 
       // Notify the extension that the webview is ready
       vscode.postMessage({ command: "ready" });

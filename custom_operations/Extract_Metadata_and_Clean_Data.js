@@ -1,9 +1,9 @@
-
 module.exports = {
   name: "Extract Metadata and Clean Data",
   category: "Data Cleaning",
   needsUserInput: false,
   userInputPlaceholders: [],
+  requiresColumns: true,
   operation: (columns, userInputs) => {
     return `
 question_map = {}

@@ -97,6 +97,11 @@ button {
   color: #fff;
 }
 
+/* Adjust spacing between buttons in the User Inputs Container */
+#userInputsContainer .secondary-button {
+  margin: 10px 5px;
+}
+
 /* Secondary Buttons Container */
 .secondary-buttons-container {
   display: flex;
@@ -104,14 +109,24 @@ button {
   flex-wrap: wrap;
 }
 
-/* Back to Main Menu Button */
-.backToMain {
+/* Back Button */
+.backButton {
   width: 200px;
   background-color: #6c757d;
 }
 
-.backToMain:hover {
+.backButton:hover {
   background-color: #5a6268;
+}
+
+/* Main Menu Button */
+.mainMenuButton {
+  width: 200px;
+  background-color: #007bff;
+}
+
+.mainMenuButton:hover {
+  background-color: #0069d9;
 }
 
 /* Lists */
@@ -319,6 +334,48 @@ th {
 }
 
 .delete-operation-button i {
+  margin-right: 5px;
+}
+
+/* Styles for the Manage Categories Page */
+#manageCategoriesPage ul {
+  list-style-type: none;
+  padding: 0;
+  max-height: 400px;
+  overflow-y: auto;
+  margin: 0 auto 20px;
+  width: 80%;
+}
+
+.category-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: #fff;
+  transition: background-color 0.2s;
+}
+
+.category-item:hover {
+  background-color: #f9f9f9;
+}
+
+.delete-category-button {
+  background-color: #dc3545; /* Red color */
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 14px;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.delete-category-button:hover {
+  background-color: #c82333;
+}
+
+.delete-category-button i {
   margin-right: 5px;
 }
 

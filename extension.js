@@ -4,7 +4,6 @@ const fs = require("fs");
 const path = require("path");
 const csv = require("csv-parser");
 const xlsx = require("xlsx");
-const { spawn } = require("child_process"); // Required for executing Python scripts
 
 let selectedFilePath = null;
 let customOperationsByCategory = {};
@@ -204,6 +203,13 @@ async function openWebviewForSelection(context) {
             });
             break;
 
+          case "requestCategoriesForManagement":
+            panel.webview.postMessage({
+              command: "setCategoriesForManagement",
+              categories: Object.keys(customOperationsByCategory),
+            });
+            break;
+
           case "categorySelected":
             const selectedCategory = message.category;
             const operations = customOperationsByCategory[selectedCategory].map(
@@ -211,6 +217,7 @@ async function openWebviewForSelection(context) {
                 name: op.name,
                 needsUserInput: op.needsUserInput || false,
                 userInputPlaceholders: op.userInputPlaceholders || [],
+                requiresColumns: op.requiresColumns || false,
               })
             );
             panel.webview.postMessage({
@@ -322,6 +329,46 @@ async function openWebviewForSelection(context) {
             }
             break;
 
+          case "confirmDeleteCategory":
+            // Show confirmation dialog to the user
+            const categoryToDelete = message.category;
+            const confirmCategoryDeletion =
+              await vscode.window.showWarningMessage(
+                `Are you sure you want to delete the category "${categoryToDelete}" and all its operations?`,
+                { modal: true },
+                "Yes",
+                "No"
+              );
+
+            if (confirmCategoryDeletion === "Yes") {
+              // Proceed with category deletion
+              await deleteCategory(categoryToDelete, context);
+              // Reload custom operations
+              loadCustomOperations(context);
+              // Update the categories in the webview
+              panel.webview.postMessage({
+                command: "setCategories",
+                categories: Object.keys(customOperationsByCategory),
+              });
+              // Notify any pages that display categories
+              panel.webview.postMessage({
+                command: "categoryDeleted",
+                category: categoryToDelete,
+              });
+              // Inform the webview of successful deletion
+              panel.webview.postMessage({
+                command: "deleteCategorySuccess",
+                message: `Successfully deleted category "${categoryToDelete}".`,
+              });
+            } else {
+              // Inform the webview that deletion was canceled
+              panel.webview.postMessage({
+                command: "deleteCategoryFailure",
+                message: `Deletion of category "${categoryToDelete}" was canceled.`,
+              });
+            }
+            break;
+
           default:
             console.error(
               `Unknown command received from webview: ${message.command}`
@@ -406,6 +453,11 @@ function getPreviewData(filePath) {
 
 async function handleOperation(columns, operation, userInputs) {
   try {
+    // If the operation doesn't require columns, set columns to an empty array
+    if (!operation.requiresColumns) {
+      columns = [];
+    }
+
     // Step 1: Process user inputs to replace &cX placeholders with actual column values
     const processedUserInputs = userInputs.map((input) => {
       return input.replace(/&c(\d+)/g, (match, index) => {
@@ -532,10 +584,15 @@ async function createCustomOperationFile(operationData, context) {
   // Replace placeholders in the operation code
   let operationCode = operationData.operationCode;
 
-  // Replace column placeholders
-  operationCode = operationCode.replace(/&c(\d+)/g, (match, index) => {
-    return `\${columns[${index}]}`;
-  });
+  // Replace column placeholders if operation requires columns
+  if (operationData.requiresColumns) {
+    operationCode = operationCode.replace(/&c(\d+)/g, (match, index) => {
+      return `\${columns[${index}]}`;
+    });
+  } else {
+    // Remove any column placeholders if operation doesn't require columns
+    operationCode = operationCode.replace(/&c\d+/g, "");
+  }
 
   // Replace user input placeholders
   if (operationData.needsUserInput) {
@@ -550,6 +607,7 @@ module.exports = {
   name: "${operationData.name}",
   category: "${operationData.category}",
   needsUserInput: ${operationData.needsUserInput},
+  requiresColumns: ${operationData.requiresColumns},
   userInputPlaceholders: ${JSON.stringify(operationData.userInputPlaceholders)},
   operation: (columns, userInputs) => {
     return \`
@@ -600,6 +658,38 @@ async function deleteCustomOperationFile(fileName, context) {
     }
   } else {
     vscode.window.showErrorMessage(`Operation file "${fileName}" not found.`);
+  }
+}
+
+// Function to delete all operations under a category
+async function deleteCategory(categoryName, context) {
+  const customOperationsDir = path.join(
+    context.extensionPath,
+    "custom_operations"
+  );
+
+  if (customOperationsByCategory[categoryName]) {
+    const operations = customOperationsByCategory[categoryName];
+    for (const operation of operations) {
+      const fileName = operation.fileName;
+      const filePath = path.join(customOperationsDir, fileName);
+
+      if (fs.existsSync(filePath)) {
+        try {
+          fs.unlinkSync(filePath);
+        } catch (error) {
+          vscode.window.showErrorMessage(
+            `Failed to delete operation "${operation.name}": ${error.message}`
+          );
+          console.error("Delete operation error:", error);
+        }
+      }
+    }
+    vscode.window.showInformationMessage(
+      `Deleted category "${categoryName}" and all its operations.`
+    );
+  } else {
+    vscode.window.showErrorMessage(`Category "${categoryName}" not found.`);
   }
 }
 

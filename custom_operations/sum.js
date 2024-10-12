@@ -2,6 +2,7 @@ module.exports = {
   name: "Sum",
   category: "Descriptive Statistics",
   needsUserInput: true,
+  requiresColumns: false,
   userInputPlaceholders: [
     'Columns to Sum (e.g, "&c0","&c1" etc...)',
     "axis = ? (0 or 1)",
