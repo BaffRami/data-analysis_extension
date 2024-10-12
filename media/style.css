@@ -98,7 +98,8 @@ button {
 }
 
 /* Adjust spacing between buttons in the User Inputs Container */
-#userInputsContainer .secondary-button {
+#userInputsContainer .secondary-button,
+#editUserInputsContainer .secondary-button {
   margin: 10px 5px;
 }
 
@@ -156,12 +157,14 @@ ul li.selected {
 }
 
 /* User Input Container */
-#userInputContainer {
+#userInputContainer,
+#editUserInputsContainer {
   margin: 20px auto;
   text-align: center;
 }
 
-#userInputContainer h3 {
+#userInputContainer h3,
+#editUserInputsContainer h3 {
   margin-bottom: 15px;
 }
 
@@ -245,20 +248,24 @@ th {
 }
 
 /* Custom Operation Form Styles */
-#customOperationForm {
+#customOperationForm,
+#editCustomOperationForm {
   max-width: 600px;
   margin: 0 auto;
   position: relative;
 }
 
-#customOperationForm label {
+#customOperationForm label,
+#editCustomOperationForm label {
   display: block;
   margin-top: 15px;
   font-weight: bold;
 }
 
 #customOperationForm input[type="text"],
-#customOperationForm textarea {
+#editCustomOperationForm input[type="text"],
+#customOperationForm textarea,
+#editCustomOperationForm textarea {
   width: 100%;
   padding: 10px;
   font-size: 16px;
@@ -266,11 +273,13 @@ th {
   border-radius: 4px;
 }
 
-#customOperationForm input[type="checkbox"] {
+#customOperationForm input[type="checkbox"],
+#editCustomOperationForm input[type="checkbox"] {
   margin-left: 10px;
 }
 
-#customOperationForm button[type="submit"] {
+#customOperationForm button[type="submit"],
+#editCustomOperationForm button[type="submit"] {
   margin-top: 20px;
 }
 
@@ -319,6 +328,26 @@ th {
   background-color: #f9f9f9;
 }
 
+.operation-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.operation-name {
+  font-weight: bold;
+}
+
+.operation-category {
+  font-style: italic;
+  color: #666;
+}
+
+.operation-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.edit-operation-button,
 .delete-operation-button {
   background-color: #dc3545; /* Red color */
   padding: 8px 12px;
@@ -329,10 +358,19 @@ th {
   cursor: pointer;
 }
 
+.edit-operation-button {
+  background-color: #28a745; /* Green color */
+}
+
+.edit-operation-button:hover {
+  background-color: #218838;
+}
+
 .delete-operation-button:hover {
   background-color: #c82333;
 }
 
+.edit-operation-button i,
 .delete-operation-button i {
   margin-right: 5px;
 }
@@ -389,7 +427,8 @@ th {
     width: 100%;
   }
 
-  #userInputContainer input {
+  #userInputContainer input,
+  #editUserInputsContainer input {
     width: 90%;
   }
 }

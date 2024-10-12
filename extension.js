@@ -369,6 +369,35 @@ async function openWebviewForSelection(context) {
             }
             break;
 
+          case "requestOperationDetails":
+            const operationDetails = await getOperationDetails(
+              message.fileName,
+              context
+            );
+            panel.webview.postMessage({
+              command: "setOperationDetails",
+              operation: operationDetails,
+            });
+            break;
+
+          case "updateCustomOperation":
+            await updateCustomOperationFile(message.data, context);
+            // Reload custom operations
+            loadCustomOperations(context);
+            // Update the categories and operations in the webview
+            panel.webview.postMessage({
+              command: "setCategories",
+              categories: Object.keys(customOperationsByCategory),
+            });
+            panel.webview.postMessage({
+              command: "setCustomOperations",
+              customOperations: getCustomOperationsList(),
+            });
+            vscode.window.showInformationMessage(
+              `Custom operation "${message.data.name}" updated successfully.`
+            );
+            break;
+
           default:
             console.error(
               `Unknown command received from webview: ${message.command}`
@@ -609,6 +638,9 @@ module.exports = {
   needsUserInput: ${operationData.needsUserInput},
   requiresColumns: ${operationData.requiresColumns},
   userInputPlaceholders: ${JSON.stringify(operationData.userInputPlaceholders)},
+  operationCode: \`${
+    operationData.operationCode
+  }\`, // Store the raw operation code
   operation: (columns, userInputs) => {
     return \`
 ${operationCode}
@@ -619,6 +651,108 @@ ${operationCode}
 
   // Write the file
   fs.writeFileSync(filePath, fileContent, "utf8");
+}
+
+// Function to get operation details for editing
+async function getOperationDetails(fileName, context) {
+  const customOperationsDir = path.join(
+    context.extensionPath,
+    "custom_operations"
+  );
+  const filePath = path.join(customOperationsDir, fileName);
+
+  if (fs.existsSync(filePath)) {
+    try {
+      const operationModule = require(filePath);
+      const fileContent = fs.readFileSync(filePath, "utf8");
+
+      // Extract the raw operation code
+      const operationCodeMatch = fileContent.match(
+        /operationCode:\s*`([^`]*)`/s
+      );
+      const rawOperationCode = operationCodeMatch
+        ? operationCodeMatch[1].trim()
+        : "";
+
+      return {
+        name: operationModule.name,
+        category: operationModule.category,
+        needsUserInput: operationModule.needsUserInput,
+        userInputPlaceholders: operationModule.userInputPlaceholders || [],
+        requiresColumns: operationModule.requiresColumns,
+        rawOperationCode: rawOperationCode,
+        fileName: fileName, // Include the file name for reference
+      };
+    } catch (error) {
+      console.error(`Failed to load operation ${fileName}:`, error);
+      throw new Error(`Failed to load operation ${fileName}.`);
+    }
+  } else {
+    throw new Error(`Operation file "${fileName}" not found.`);
+  }
+}
+
+// Function to update an existing custom operation file
+async function updateCustomOperationFile(operationData, context) {
+  const customOperationsDir = path.join(
+    context.extensionPath,
+    "custom_operations"
+  );
+  const filePath = path.join(customOperationsDir, operationData.fileName);
+
+  if (fs.existsSync(filePath)) {
+    try {
+      // Replace placeholders in the operation code
+      let operationCode = operationData.operationCode;
+
+      // Replace column placeholders if operation requires columns
+      if (operationData.requiresColumns) {
+        operationCode = operationCode.replace(/&c(\d+)/g, (match, index) => {
+          return `\${columns[${index}]}`;
+        });
+      } else {
+        // Remove any column placeholders if operation doesn't require columns
+        operationCode = operationCode.replace(/&c\d+/g, "");
+      }
+
+      // Replace user input placeholders
+      if (operationData.needsUserInput) {
+        operationCode = operationCode.replace(/&i(\d+)/g, (match, index) => {
+          return `\${userInputs[${index}]}`;
+        });
+      }
+
+      // Create the content of the JS file
+      const fileContent = `
+module.exports = {
+  name: "${operationData.name}",
+  category: "${operationData.category}",
+  needsUserInput: ${operationData.needsUserInput},
+  requiresColumns: ${operationData.requiresColumns},
+  userInputPlaceholders: ${JSON.stringify(operationData.userInputPlaceholders)},
+  operationCode: \`${
+    operationData.operationCode
+  }\`, // Store the raw operation code
+  operation: (columns, userInputs) => {
+    return \`
+${operationCode}
+    \`;
+  },
+};
+`;
+
+      // Write the updated content to the file
+      fs.writeFileSync(filePath, fileContent, "utf8");
+    } catch (error) {
+      vscode.window.showErrorMessage(
+        `Failed to update operation: ${error.message}`
+      );
+      console.error("Update operation error:", error);
+      throw error;
+    }
+  } else {
+    throw new Error(`Operation file "${operationData.fileName}" not found.`);
+  }
 }
 
 // Function to get the list of custom operations

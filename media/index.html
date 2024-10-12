@@ -230,15 +230,95 @@
       </form>
     </div>
 
+    <!-- Edit Custom Operation Page -->
+    <div id="editCustomOperationPage" style="display: none">
+      <h2>Edit Custom Operation</h2>
+      <form id="editCustomOperationForm">
+        <label for="editOperationName">Operation Name:</label>
+        <input type="text" id="editOperationName" required />
+
+        <label for="editOperationCategory">Operation Category:</label>
+        <input
+          type="text"
+          id="editOperationCategory"
+          required
+          autocomplete="off"
+        />
+        <!-- Container for category suggestions -->
+        <div id="editCategorySuggestions" class="suggestions-list"></div>
+
+        <label>
+          <input type="checkbox" id="editNeedsUserInput" />
+          Requires User Input
+        </label>
+
+        <!-- User Inputs Container -->
+        <div id="editUserInputsContainer" style="display: none">
+          <button
+            type="button"
+            id="editAddUserInputButton"
+            class="secondary-button"
+          >
+            <i class="fas fa-plus"></i>
+            <span>Add User Input Placeholder</span>
+          </button>
+          <button
+            type="button"
+            id="editRemoveUserInputButton"
+            class="secondary-button"
+          >
+            <i class="fas fa-minus"></i>
+            <span>Remove Last User Input</span>
+          </button>
+          <div id="editUserInputsList"></div>
+        </div>
+
+        <label for="editOperationCode">Operation Code:</label>
+        <textarea id="editOperationCode" rows="8" required></textarea>
+
+        <label>
+          <input type="checkbox" id="editRequiresColumns" checked />
+          Requires Column Selection
+        </label>
+
+        <!-- Column Placeholder Note -->
+        <div id="editColumnPlaceholderNote" style="display: none">
+          <p>
+            Note: You cannot use column placeholders (&c0, &c1, etc.) when
+            "Requires Column Selection" is unchecked.
+          </p>
+        </div>
+
+        <input type="hidden" id="editOperationFileName" />
+
+        <button
+          type="submit"
+          id="submitEditedOperationButton"
+          class="main-button"
+        >
+          <i class="fas fa-save"></i>
+          <span>Save Changes</span>
+        </button>
+        <button
+          type="button"
+          id="cancelEditOperationButton"
+          class="main-button"
+        >
+          <i class="fas fa-times"></i>
+          <span>Cancel</span>
+        </button>
+      </form>
+    </div>
+
     <!-- Manage Custom Operations Page -->
     <div id="manageCustomOperationsPage" style="display: none">
       <h2>Manage Custom Operations</h2>
       <ul id="customOperationsList">
         <!-- Custom operations will be dynamically added here -->
       </ul>
-      <button class="backButton main-button">
-        <i class="fas fa-arrow-left"></i>
-        <span>Back</span>
+      <button class="mainMenuButton main-button">
+        <i class="fas fa-home"></i>
+        <span>Main Menu</span>
       </button>
     </div>
 
@@ -304,6 +384,7 @@
           "columnPage",
           "dataPreviewContainer",
           "createCustomOperationPage",
+          "editCustomOperationPage",
           "manageCustomOperationsPage",
           "manageCategoriesPage",
         ];
@@ -679,11 +760,19 @@
           const listItem = document.createElement("li");
           listItem.className = "custom-operation-item";
           listItem.innerHTML = `
-          <span><strong>${operation.name}</strong> (${operation.category})</span>
-          <button class="delete-operation-button" data-filename="${operation.fileName}">
-            <i class="fas fa-trash-alt"></i> Delete
-          </button>
-        `;
+            <div class="operation-details">
+              <span class="operation-name">${operation.name}</span>
+              <span class="operation-category">(${operation.category})</span>
+            </div>
+            <div class="operation-buttons">
+              <button class="edit-operation-button" data-filename="${operation.fileName}">
+                <i class="fas fa-edit"></i> Edit
+              </button>
+              <button class="delete-operation-button" data-filename="${operation.fileName}">
+                <i class="fas fa-trash-alt"></i> Delete
+              </button>
+            </div>
+          `;
 
           customOperationsList.appendChild(listItem);
         });
@@ -702,6 +791,21 @@
             });
           });
         });
+
+        // Add event listeners for edit buttons
+        const editButtons = customOperationsList.querySelectorAll(
+          ".edit-operation-button"
+        );
+        editButtons.forEach((button) => {
+          button.addEventListener("click", (event) => {
+            const fileName = event.currentTarget.dataset.filename;
+            // Send a message to the extension to request operation details
+            vscode.postMessage({
+              command: "requestOperationDetails",
+              fileName: fileName,
+            });
+          });
+        });
       }
 
       // Function to display categories in the Manage Categories Page
@@ -713,11 +817,11 @@
           const listItem = document.createElement("li");
           listItem.className = "category-item";
           listItem.innerHTML = `
-          <span><strong>${category}</strong></span>
-          <button class="delete-category-button" data-category="${category}">
-            <i class="fas fa-trash-alt"></i> Delete
-          </button>
-        `;
+            <span><strong>${category}</strong></span>
+            <button class="delete-category-button" data-category="${category}">
+              <i class="fas fa-trash-alt"></i> Delete
+            </button>
+          `;
 
           categoriesList.appendChild(listItem);
         });
@@ -876,7 +980,7 @@
           categorySuggestionsContainer.style.display = "none";
         });
 
-      // Event listeners for custom autocomplete
+      // Event listeners for custom autocomplete in Create Operation Form
       operationCategoryInput.addEventListener("input", onCategoryInputChange);
 
       operationCategoryInput.addEventListener("focus", onCategoryInputFocus);
@@ -928,6 +1032,252 @@
         }
       }
 
+      // Edit Custom Operation Form Handlers
+      const editOperationCategoryInput = document.getElementById(
+        "editOperationCategory"
+      );
+      const editCategorySuggestionsContainer = document.getElementById(
+        "editCategorySuggestions"
+      );
+
+      // Event listeners for custom autocomplete in Edit Operation Form
+      editOperationCategoryInput.addEventListener(
+        "input",
+        onEditCategoryInputChange
+      );
+
+      editOperationCategoryInput.addEventListener(
+        "focus",
+        onEditCategoryInputFocus
+      );
+
+      editOperationCategoryInput.addEventListener("blur", () => {
+        setTimeout(() => {
+          editCategorySuggestionsContainer.style.display = "none";
+        }, 200);
+      });
+
+      function onEditCategoryInputChange() {
+        const inputValue = editOperationCategoryInput.value.toLowerCase();
+        editCategorySuggestionsContainer.innerHTML = ""; // Clear previous suggestions
+
+        if (inputValue === "") {
+          editCategorySuggestionsContainer.style.display = "none";
+          return;
+        }
+
+        const filteredCategories = existingCategories.filter((category) =>
+          category.toLowerCase().includes(inputValue)
+        );
+
+        if (filteredCategories.length === 0) {
+          editCategorySuggestionsContainer.style.display = "none";
+          return;
+        }
+
+        filteredCategories.forEach((category) => {
+          const suggestionItem = document.createElement("div");
+          suggestionItem.classList.add("suggestion-item");
+          suggestionItem.textContent = category;
+
+          suggestionItem.addEventListener("click", () => {
+            editOperationCategoryInput.value = category;
+            editCategorySuggestionsContainer.innerHTML = "";
+            editCategorySuggestionsContainer.style.display = "none";
+          });
+
+          editCategorySuggestionsContainer.appendChild(suggestionItem);
+        });
+
+        editCategorySuggestionsContainer.style.display = "block";
+      }
+
+      function onEditCategoryInputFocus() {
+        if (editOperationCategoryInput.value !== "") {
+          onEditCategoryInputChange();
+        }
+      }
+
+      // Show or hide the user inputs container based on the checkbox in Edit Form
+      document
+        .getElementById("editNeedsUserInput")
+        .addEventListener("change", function () {
+          const userInputsContainer = document.getElementById(
+            "editUserInputsContainer"
+          );
+          if (this.checked) {
+            userInputsContainer.style.display = "block";
+          } else {
+            userInputsContainer.style.display = "none";
+            // Clear the user inputs list
+            document.getElementById("editUserInputsList").innerHTML = "";
+          }
+        });
+
+      // Handle adding user input placeholders in Edit Form
+      document
+        .getElementById("editAddUserInputButton")
+        .addEventListener("click", function () {
+          const userInputsList = document.getElementById("editUserInputsList");
+          const inputCount = userInputsList.children.length;
+
+          const inputDiv = document.createElement("div");
+          inputDiv.className = "user-input-item";
+
+          const label = document.createElement("label");
+          label.textContent = `User Input Placeholder ${inputCount + 1}:`;
+
+          const inputField = document.createElement("input");
+          inputField.type = "text";
+          inputField.className = "editUserInputPlaceholder";
+          inputField.required = true;
+
+          inputDiv.appendChild(label);
+          inputDiv.appendChild(inputField);
+          userInputsList.appendChild(inputDiv);
+        });
+
+      // Event listener for "Remove Last User Input" button in Edit Form
+      document
+        .getElementById("editRemoveUserInputButton")
+        .addEventListener("click", function () {
+          const userInputsList = document.getElementById("editUserInputsList");
+          if (userInputsList.children.length > 0) {
+            userInputsList.removeChild(userInputsList.lastChild);
+          }
+        });
+
+      // Handle the edit operation form submission
+      document
+        .getElementById("editCustomOperationForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const operationName =
+            document.getElementById("editOperationName").value;
+          let operationCategory = editOperationCategoryInput.value.trim();
+          const needsUserInput =
+            document.getElementById("editNeedsUserInput").checked;
+          const operationCode =
+            document.getElementById("editOperationCode").value;
+          const requiresColumns = document.getElementById(
+            "editRequiresColumns"
+          ).checked;
+          const fileName = document.getElementById(
+            "editOperationFileName"
+          ).value;
+
+          // Collect multiple user input placeholders
+          let userInputPlaceholders = [];
+          if (needsUserInput) {
+            const userInputFields = document.querySelectorAll(
+              ".editUserInputPlaceholder"
+            );
+            userInputFields.forEach((input) => {
+              userInputPlaceholders.push(input.value.trim());
+            });
+          }
+
+          // Perform case-insensitive category matching
+          const matchedCategory = existingCategories.find(
+            (cat) => cat.toLowerCase() === operationCategory.toLowerCase()
+          );
+          if (matchedCategory) {
+            operationCategory = matchedCategory; // Use the existing category with original casing
+          }
+
+          // Validate operation code for column placeholders
+          const columnPlaceholderRegex = /&c\d+/;
+          if (!requiresColumns && columnPlaceholderRegex.test(operationCode)) {
+            alert(
+              "You cannot use &c0, &c1, etc., in the operation code when 'Requires Column Selection' is unchecked."
+            );
+            return;
+          }
+          if (requiresColumns && !columnPlaceholderRegex.test(operationCode)) {
+            alert(
+              "Operation code must contain at least one &c0, &c1, etc., when 'Requires Column Selection' is checked."
+            );
+            return;
+          }
+
+          // Send the data to the extension backend
+          vscode.postMessage({
+            command: "updateCustomOperation",
+            data: {
+              name: operationName,
+              category: operationCategory,
+              needsUserInput: needsUserInput,
+              userInputPlaceholders: userInputPlaceholders,
+              operationCode: operationCode,
+              requiresColumns: requiresColumns, // Include this field
+              fileName: fileName, // Include the file name for updating
+            },
+          });
+
+          // Reset the form
+          this.reset();
+          document.getElementById("editUserInputsContainer").style.display =
+            "none";
+          document.getElementById("editUserInputsList").innerHTML = "";
+
+          // Hide column placeholder note
+          document.getElementById("editColumnPlaceholderNote").style.display =
+            "none";
+
+          // Navigate back to Manage Custom Operations page
+          navigateToPage("manageCustomOperationsPage");
+          // Refresh the custom operations list
+          vscode.postMessage({ command: "requestCustomOperations" });
+        });
+
+      // Event listener for "Cancel" button in Edit Form
+      document
+        .getElementById("cancelEditOperationButton")
+        .addEventListener("click", function () {
+          // Reset the form
+          document.getElementById("editCustomOperationForm").reset();
+          // Hide and clear the user inputs container
+          document.getElementById("editUserInputsContainer").style.display =
+            "none";
+          document.getElementById("editUserInputsList").innerHTML = "";
+          // Hide column placeholder note
+          document.getElementById("editColumnPlaceholderNote").style.display =
+            "none";
+          // Hide category suggestions
+          editCategorySuggestionsContainer.style.display = "none";
+
+          // Navigate back to Manage Custom Operations page
+          navigateToPage("manageCustomOperationsPage");
+        });
+
+      // Show or hide the column placeholder note based on the checkbox
+      document
+        .getElementById("requiresColumns")
+        .addEventListener("change", function () {
+          const columnPlaceholderNote = document.getElementById(
+            "columnPlaceholderNote"
+          );
+          if (this.checked) {
+            columnPlaceholderNote.style.display = "none";
+          } else {
+            columnPlaceholderNote.style.display = "block";
+          }
+        });
+
+      // Show or hide the column placeholder note based on the checkbox in Edit Form
+      document
+        .getElementById("editRequiresColumns")
+        .addEventListener("change", function () {
+          const columnPlaceholderNote = document.getElementById(
+            "editColumnPlaceholderNote"
+          );
+          if (this.checked) {
+            columnPlaceholderNote.style.display = "none";
+          } else {
+            columnPlaceholderNote.style.display = "block";
+          }
+        });
+
       // Message handling from the extension
       window.addEventListener("message", (event) => {
         const message = event.data;
@@ -949,6 +1299,9 @@
             break;
           case "setCustomOperations":
             displayCustomOperations(message.customOperations);
+            break;
+          case "setOperationDetails":
+            populateEditOperationForm(message.operation);
             break;
           case "categoryDeleted":
             // If the current page is managing categories, refresh the list
@@ -979,19 +1332,65 @@
         }
       });
 
-      // Show or hide the column placeholder note based on the checkbox
-      document
-        .getElementById("requiresColumns")
-        .addEventListener("change", function () {
-          const columnPlaceholderNote = document.getElementById(
-            "columnPlaceholderNote"
-          );
-          if (this.checked) {
-            columnPlaceholderNote.style.display = "none";
-          } else {
-            columnPlaceholderNote.style.display = "block";
-          }
-        });
+      // Function to populate the Edit Operation Form with existing data
+      function populateEditOperationForm(operation) {
+        document.getElementById("editOperationName").value = operation.name;
+        document.getElementById("editOperationCategory").value =
+          operation.category;
+        document.getElementById("editNeedsUserInput").checked =
+          operation.needsUserInput;
+        document.getElementById("editOperationCode").value =
+          operation.rawOperationCode;
+        document.getElementById("editRequiresColumns").checked =
+          operation.requiresColumns;
+        document.getElementById("editOperationFileName").value =
+          operation.fileName;
+
+        // Handle user input placeholders
+        const userInputsContainer = document.getElementById(
+          "editUserInputsContainer"
+        );
+        const userInputsList = document.getElementById("editUserInputsList");
+
+        if (operation.needsUserInput) {
+          userInputsContainer.style.display = "block";
+          userInputsList.innerHTML = ""; // Clear any existing inputs
+
+          operation.userInputPlaceholders.forEach((placeholder, index) => {
+            const inputDiv = document.createElement("div");
+            inputDiv.className = "user-input-item";
+
+            const label = document.createElement("label");
+            label.textContent = `User Input Placeholder ${index + 1}:`;
+
+            const inputField = document.createElement("input");
+            inputField.type = "text";
+            inputField.className = "editUserInputPlaceholder";
+            inputField.required = true;
+            inputField.value = placeholder;
+
+            inputDiv.appendChild(label);
+            inputDiv.appendChild(inputField);
+            userInputsList.appendChild(inputDiv);
+          });
+        } else {
+          userInputsContainer.style.display = "none";
+          userInputsList.innerHTML = "";
+        }
+
+        // Show or hide the column placeholder note
+        const columnPlaceholderNote = document.getElementById(
+          "editColumnPlaceholderNote"
+        );
+        if (operation.requiresColumns) {
+          columnPlaceholderNote.style.display = "none";
+        } else {
+          columnPlaceholderNote.style.display = "block";
+        }
+
+        // Navigate to the Edit Custom Operation Page
+        navigateToPage("editCustomOperationPage");
+      }
 
       // Notify the extension that the webview is ready
       vscode.postMessage({ command: "ready" });
