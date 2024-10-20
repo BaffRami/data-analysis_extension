@@ -1,12 +1,16 @@
+
 module.exports = {
   name: "Remove Duplicates",
   category: "Data Cleaning",
   needsUserInput: false,
   requiresColumns: false,
+  requiresColumnValues: false, 
   userInputPlaceholders: [],
-  operation: (columns, userInputs) => {
+  operationCode: `df.drop_duplicates()
+`, // Store the raw operation code
+  operation: (columns, userInputs, values) => {
     return `
-df = df.drop_duplicates()
+df.drop_duplicates()
 
     `;
   },

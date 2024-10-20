@@ -217,6 +217,24 @@ th {
   background-color: #eaeaea;
 }
 
+/* Alerts/Messages Container */
+#messageContainer {
+  display: none;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  color: red;
+  border: 1px solid red;
+  background-color: #f8d7da;
+  font-weight: bold;
+}
+
+#messageContainer.success {
+  color: green;
+  border-color: green;
+  background-color: #d4edda;
+}
+
 /* Queue Container */
 #queueContainer {
   margin-top: 20px;
@@ -250,48 +268,98 @@ th {
 /* Custom Operation Form Styles */
 #customOperationForm,
 #editCustomOperationForm {
-  max-width: 600px;
+  max-width: 700px;
   margin: 0 auto;
-  position: relative;
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-#customOperationForm label,
-#editCustomOperationForm label {
+/* Fieldsets and Legends */
+fieldset {
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+legend {
+  padding: 0 10px;
+  font-weight: bold;
+  font-size: 18px;
+  color: var(--primary-color);
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
   display: block;
-  margin-top: 15px;
+  margin-bottom: 8px;
   font-weight: bold;
 }
 
-#customOperationForm input[type="text"],
-#editCustomOperationForm input[type="text"],
-#customOperationForm textarea,
-#editCustomOperationForm textarea {
+.form-group input[type="text"],
+.form-group textarea {
   width: 100%;
   padding: 10px;
   font-size: 16px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
+  box-sizing: border-box;
 }
 
-#customOperationForm input[type="checkbox"],
-#editCustomOperationForm input[type="checkbox"] {
-  margin-left: 10px;
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
 }
 
-#customOperationForm button[type="submit"],
-#editCustomOperationForm button[type="submit"] {
-  margin-top: 20px;
+/* Checkbox Groups */
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
-/* Styles for the custom autocomplete suggestions */
-.suggestions-list {
+.checkbox-group input[type="checkbox"] {
+  margin-right: 10px;
+  transform: scale(1.2);
+}
+
+.checkbox-group label {
+  margin: 0;
+}
+
+/* Info Notes */
+.info-note {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #e9f7ef; /* Light green background */
+  border-left: 4px solid var(--primary-color);
+  border-radius: 4px;
+  font-size: 14px;
+  color: #155724; /* Dark green text */
+}
+
+/* Autocomplete Suggestions */
+.autocomplete {
+  position: relative;
+}
+
+.suggestions {
   position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
   background-color: #fff;
   border: 1px solid var(--border-color);
   border-top: none;
   max-height: 150px;
   overflow-y: auto;
-  width: calc(100% - 22px); /* Adjust width to match input field */
   z-index: 1000;
 }
 
@@ -302,6 +370,147 @@ th {
 
 .suggestion-item:hover {
   background-color: #f1f1f1;
+}
+
+/* Form Buttons */
+.form-buttons {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.form-buttons .main-button,
+.form-buttons .secondary-button {
+  width: calc(50% - 10px);
+  margin-bottom: 10px;
+}
+
+.form-buttons .main-button {
+  background-color: var(--primary-color);
+}
+
+.form-buttons .main-button:hover {
+  background-color: var(--primary-color-hover);
+}
+
+.form-buttons .secondary-button {
+  background-color: var(--secondary-color);
+}
+
+.form-buttons .secondary-button:hover {
+  background-color: var(--secondary-color-hover);
+}
+
+/* Adjustments for User Inputs Container */
+#userInputsContainer,
+#editUserInputsContainer {
+  margin-top: 20px;
+}
+
+#userInputsContainer h3,
+#editUserInputsContainer h3 {
+  margin-bottom: 15px;
+  font-size: 18px;
+  color: var(--primary-color);
+}
+
+/* User Input Items */
+.user-input-item {
+  margin-bottom: 10px;
+}
+
+.user-input-item label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: normal;
+}
+
+.user-input-item input {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+/* Buttons inside User Inputs Container */
+#userInputsContainer .secondary-button,
+#editUserInputsContainer .secondary-button {
+  width: auto;
+  margin: 10px 5px 0 0;
+  padding: 8px 12px;
+}
+
+#userInputsContainer .secondary-button i,
+#editUserInputsContainer .secondary-button i {
+  margin-right: 5px;
+}
+
+/* Styles for the Column Values Selection Page */
+#columnValuesPage {
+  text-align: center;
+}
+
+#columnValuesPage h2 {
+  margin-bottom: 20px;
+}
+
+#columnValuesList {
+  list-style-type: none;
+  padding: 0;
+  max-height: 400px;
+  overflow-y: auto;
+  margin: 0 auto 20px;
+  width: 80%;
+}
+
+#columnValuesList li {
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: #fff;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+#columnValuesList li:hover {
+  background-color: #f9f9f9;
+}
+
+#columnValuesList li label {
+  margin-left: 10px;
+}
+
+#columnValuesList li input[type="checkbox"] {
+  transform: scale(1.2);
+}
+
+/* Styles for the Column Values Selection Page Button Group */
+.button-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px; /* Space between buttons */
+  margin-top: 20px;
+}
+
+/* Ensure buttons inside .button-group have consistent sizes */
+.button-group .main-button,
+.button-group .secondary-button {
+  width: 150px;
+  padding: 10px;
+}
+
+/* Adjust the size of icons inside buttons */
+.button-group .main-button i,
+.button-group .secondary-button i {
+  font-size: 18px;
+}
+
+/* Adjust the font size of the button text */
+.button-group .main-button span,
+.button-group .secondary-button span {
+  font-size: 16px;
 }
 
 /* Styles for the Manage Custom Operations Page */
@@ -430,6 +639,12 @@ th {
   #userInputContainer input,
   #editUserInputsContainer input {
     width: 90%;
+  }
+
+  .form-buttons .main-button,
+  .form-buttons .secondary-button {
+    width: 100%;
+    margin-bottom: 10px;
   }
 }
 

@@ -141,6 +141,29 @@
       </button>
     </div>
 
+    <!-- Column Values Selection Page -->
+    <!-- Column Values Selection Page -->
+    <div id="columnValuesPage" style="display: none">
+      <h2>Select Values for Column</h2>
+      <ul id="columnValuesList">
+        <!-- Values will be dynamically added here -->
+      </ul>
+      <div class="button-group">
+        <button id="backColumnValue" class="backButton main-button">
+          <i class="fas fa-arrow-left"></i>
+          <span>Back</span>
+        </button>
+        <button id="skipColumnValue" class="secondary-button">
+          <i class="fas fa-forward"></i>
+          <span>Skip</span>
+        </button>
+        <button id="nextColumnValue" class="main-button">
+          <i class="fas fa-arrow-right"></i>
+          <span>Next</span>
+        </button>
+      </div>
+    </div>
+
     <!-- Data Preview Container -->
     <div id="dataPreviewContainer" style="display: none">
       <h3>Data Preview:</h3>
@@ -157,76 +180,118 @@
     <div id="createCustomOperationPage" style="display: none">
       <h2>Create Custom Operation</h2>
       <form id="customOperationForm">
-        <label for="operationName">Operation Name:</label>
-        <input type="text" id="operationName" required />
+        <!-- Operation Details Section -->
+        <fieldset>
+          <legend>Operation Details</legend>
+          <div class="form-group">
+            <label for="operationName">Operation Name:</label>
+            <input
+              type="text"
+              id="operationName"
+              required
+              placeholder="Enter a unique operation name"
+            />
+          </div>
+          <div class="form-group autocomplete">
+            <label for="operationCategory">Category:</label>
+            <input
+              type="text"
+              id="operationCategory"
+              required
+              placeholder="Select or create a category"
+            />
+            <div id="categorySuggestions" class="suggestions"></div>
+          </div>
+        </fieldset>
 
-        <label for="operationCategory">Operation Category:</label>
-        <input type="text" id="operationCategory" required autocomplete="off" />
-        <!-- Container for category suggestions -->
-        <div id="categorySuggestions" class="suggestions-list"></div>
+        <!-- Operation Code Section -->
+        <fieldset>
+          <legend>Operation Code</legend>
+          <div class="form-group">
+            <label for="operationCode">Code:</label>
+            <textarea
+              id="operationCode"
+              required
+              placeholder="Enter the Python code for the operation"
+            ></textarea>
+          </div>
+        </fieldset>
 
-        <label>
-          <input type="checkbox" id="needsUserInput" />
-          Requires User Input
-        </label>
-
-        <!-- User Inputs Container -->
-        <div id="userInputsContainer" style="display: none">
-          <button
-            type="button"
-            id="addUserInputButton"
-            class="secondary-button"
+        <!-- Options Section -->
+        <fieldset>
+          <legend>Options</legend>
+          <div class="checkbox-group">
+            <input type="checkbox" id="requiresColumns" />
+            <label for="requiresColumns">Requires Column Selection</label>
+          </div>
+          <div
+            id="columnPlaceholderNote"
+            class="info-note"
+            style="display: none"
           >
-            <i class="fas fa-plus"></i>
-            <span>Add User Input Placeholder</span>
+            <p>
+              Use <code>&amp;c0</code>, <code>&amp;c1</code>, etc., in your code
+              to represent selected columns.
+            </p>
+          </div>
+
+          <div class="checkbox-group">
+            <input type="checkbox" id="requiresColumnValues" />
+            <label for="requiresColumnValues">Requires Column Values</label>
+          </div>
+          <div
+            id="columnValuePlaceholderNote"
+            class="info-note"
+            style="display: none"
+          >
+            <p>
+              Use <code>&amp;v0</code>, <code>&amp;v1</code>, etc., in your code
+              to represent selected column values.
+            </p>
+          </div>
+
+          <div class="checkbox-group">
+            <input type="checkbox" id="needsUserInput" />
+            <label for="needsUserInput">Needs User Input</label>
+          </div>
+          <div id="userInputsContainer" style="display: none">
+            <h3>User Input Placeholders:</h3>
+            <div id="userInputsList">
+              <!-- User input placeholders will be added here -->
+            </div>
+            <button
+              type="button"
+              id="addUserInputButton"
+              class="secondary-button"
+            >
+              <i class="fas fa-plus"></i> Add User Input
+            </button>
+            <button
+              type="button"
+              id="removeUserInputButton"
+              class="secondary-button"
+            >
+              <i class="fas fa-minus"></i> Remove User Input
+            </button>
+          </div>
+        </fieldset>
+
+        <!-- Form Buttons -->
+        <div class="form-buttons">
+          <button type="submit" class="main-button">
+            <i class="fas fa-save"></i> Create Operation
           </button>
           <button
             type="button"
-            id="removeUserInputButton"
+            id="resetCustomOperationFormButton"
             class="secondary-button"
           >
-            <i class="fas fa-minus"></i>
-            <span>Remove Last User Input</span>
+            <i class="fas fa-undo"></i> Reset Fields
           </button>
-          <div id="userInputsList"></div>
+          <button type="button" class="mainMenuButton main-button">
+            <i class="fas fa-home"></i> Main Menu
+          </button>
         </div>
-
-        <label for="operationCode">Operation Code:</label>
-        <textarea id="operationCode" rows="8" required></textarea>
-
-        <label>
-          <input type="checkbox" id="requiresColumns" checked />
-          Requires Column Selection
-        </label>
-
-        <!-- Column Placeholder Note -->
-        <div id="columnPlaceholderNote" style="display: none">
-          <p>
-            Note: You cannot use column placeholders (&c0, &c1, etc.) when
-            "Requires Column Selection" is unchecked.
-          </p>
-        </div>
-
-        <button
-          type="submit"
-          id="submitCustomOperationButton"
-          class="main-button"
-        >
-          <i class="fas fa-save"></i>
-          <span>Save Custom Operation</span>
-        </button>
-        <button
-          type="button"
-          id="resetCustomOperationFormButton"
-          class="main-button"
-        >
-          <i class="fas fa-undo-alt"></i>
-          <span>Reset All Fields</span>
-        </button>
-        <button class="backButton main-button" type="button">
-          <i class="fas fa-arrow-left"></i>
-          <span>Back</span>
-        </button>
       </form>
     </div>
 
@@ -234,79 +299,121 @@
     <div id="editCustomOperationPage" style="display: none">
       <h2>Edit Custom Operation</h2>
       <form id="editCustomOperationForm">
-        <label for="editOperationName">Operation Name:</label>
-        <input type="text" id="editOperationName" required />
+        <!-- Operation Details Section -->
+        <fieldset>
+          <legend>Operation Details</legend>
+          <div class="form-group">
+            <label for="editOperationName">Operation Name:</label>
+            <input
+              type="text"
+              id="editOperationName"
+              required
+              placeholder="Enter a unique operation name"
+            />
+          </div>
+          <div class="form-group autocomplete">
+            <label for="editOperationCategory">Category:</label>
+            <input
+              type="text"
+              id="editOperationCategory"
+              required
+              placeholder="Select or create a category"
+            />
+            <div id="editCategorySuggestions" class="suggestions"></div>
+          </div>
+        </fieldset>
 
-        <label for="editOperationCategory">Operation Category:</label>
-        <input
-          type="text"
-          id="editOperationCategory"
-          required
-          autocomplete="off"
-        />
-        <!-- Container for category suggestions -->
-        <div id="editCategorySuggestions" class="suggestions-list"></div>
+        <!-- Operation Code Section -->
+        <fieldset>
+          <legend>Operation Code</legend>
+          <div class="form-group">
+            <label for="editOperationCode">Code:</label>
+            <textarea
+              id="editOperationCode"
+              required
+              placeholder="Enter the Python code for the operation"
+            ></textarea>
+          </div>
+        </fieldset>
 
-        <label>
-          <input type="checkbox" id="editNeedsUserInput" />
-          Requires User Input
-        </label>
-
-        <!-- User Inputs Container -->
-        <div id="editUserInputsContainer" style="display: none">
-          <button
-            type="button"
-            id="editAddUserInputButton"
-            class="secondary-button"
+        <!-- Options Section -->
+        <fieldset>
+          <legend>Options</legend>
+          <div class="checkbox-group">
+            <input type="checkbox" id="editRequiresColumns" />
+            <label for="editRequiresColumns">Requires Column Selection</label>
+          </div>
+          <div
+            id="editColumnPlaceholderNote"
+            class="info-note"
+            style="display: none"
           >
-            <i class="fas fa-plus"></i>
-            <span>Add User Input Placeholder</span>
-          </button>
-          <button
-            type="button"
-            id="editRemoveUserInputButton"
-            class="secondary-button"
+            <p>
+              Use <code>&amp;c0</code>, <code>&amp;c1</code>, etc., in your code
+              to represent selected columns.
+            </p>
+          </div>
+
+          <div class="checkbox-group">
+            <input type="checkbox" id="editRequiresColumnValues" />
+            <label for="editRequiresColumnValues">Requires Column Values</label>
+          </div>
+          <div
+            id="editColumnValuePlaceholderNote"
+            class="info-note"
+            style="display: none"
           >
-            <i class="fas fa-minus"></i>
-            <span>Remove Last User Input</span>
-          </button>
-          <div id="editUserInputsList"></div>
-        </div>
+            <p>
+              Use <code>&amp;v0</code>, <code>&amp;v1</code>, etc., in your code
+              to represent selected column values.
+            </p>
+          </div>
 
-        <label for="editOperationCode">Operation Code:</label>
-        <textarea id="editOperationCode" rows="8" required></textarea>
+          <div class="checkbox-group">
+            <input type="checkbox" id="editNeedsUserInput" />
+            <label for="editNeedsUserInput">Needs User Input</label>
+          </div>
+          <div id="editUserInputsContainer" style="display: none">
+            <h3>User Input Placeholders:</h3>
+            <div id="editUserInputsList">
+              <!-- User input placeholders will be added here -->
+            </div>
+            <button
+              type="button"
+              id="editAddUserInputButton"
+              class="secondary-button"
+            >
+              <i class="fas fa-plus"></i> Add User Input
+            </button>
+            <button
+              type="button"
+              id="editRemoveUserInputButton"
+              class="secondary-button"
+            >
+              <i class="fas fa-minus"></i> Remove User Input
+            </button>
+          </div>
+        </fieldset>
 
-        <label>
-          <input type="checkbox" id="editRequiresColumns" checked />
-          Requires Column Selection
-        </label>
-
-        <!-- Column Placeholder Note -->
-        <div id="editColumnPlaceholderNote" style="display: none">
-          <p>
-            Note: You cannot use column placeholders (&c0, &c1, etc.) when
-            "Requires Column Selection" is unchecked.
-          </p>
-        </div>
-
+        <!-- Hidden Field for File Name -->
         <input type="hidden" id="editOperationFileName" />
 
-        <button
-          type="submit"
-          id="submitEditedOperationButton"
-          class="main-button"
-        >
-          <i class="fas fa-save"></i>
-          <span>Save Changes</span>
-        </button>
-        <button
-          type="button"
-          id="cancelEditOperationButton"
-          class="main-button"
-        >
-          <i class="fas fa-times"></i>
-          <span>Cancel</span>
-        </button>
+        <!-- Form Buttons -->
+        <div class="form-buttons">
+          <button type="submit" class="main-button">
+            <i class="fas fa-save"></i> Update Operation
+          </button>
+          <button
+            type="button"
+            id="cancelEditOperationButton"
+            class="secondary-button"
+          >
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button type="button" class="mainMenuButton main-button">
+            <i class="fas fa-home"></i> Main Menu
+          </button>
+        </div>
       </form>
     </div>
 
@@ -328,11 +435,23 @@
       <ul id="categoriesList">
         <!-- Categories will be dynamically added here -->
       </ul>
-      <button class="backButton main-button">
-        <i class="fas fa-arrow-left"></i>
-        <span>Back</span>
+      <button class="mainMenuButton main-button">
+        <i class="fas fa-home"></i>
+        <span>Main Menu</span>
       </button>
     </div>
+
+    <div
+      id="messageContainer"
+      style="
+        display: none;
+        color: red;
+        padding: 10px;
+        border: 1px solid red;
+        background-color: #f8d7da;
+        margin-bottom: 10px;
+      "
+    ></div>
 
     <!-- Queued Operations Display -->
     <div id="queueContainer">
@@ -343,1057 +462,7 @@
     </div>
 
     <!-- JavaScript Code -->
-    <script>
-      const vscode = acquireVsCodeApi();
-
-      // Variables to store user selections
-      let selectedCategory = null;
-      let selectedOperation = null;
-      let selectedColumns = [];
-      let selectedOperationRequiresInput = false;
-      let selectedOperationPlaceholders = [];
-      let selectedOperationRequiresColumns = false;
-      let existingCategories = []; // Store existing categories
-
-      // References to elements
-      const operationCategoryInput =
-        document.getElementById("operationCategory");
-      const categorySuggestionsContainer = document.getElementById(
-        "categorySuggestions"
-      );
-
-      // Array to store queued operations
-      let operationQueue = [];
-
-      // Navigation history for back button functionality
-      let navigationHistory = [];
-
-      // Get references to user input elements
-      const userInputContainer = document.getElementById("userInputContainer");
-      const userInputFieldsContainer = document.getElementById(
-        "userInputFieldsContainer"
-      );
-
-      // Navigation functions
-      function navigateToPage(pageId) {
-        // Hide all pages
-        const pages = [
-          "mainMenu",
-          "categoryPage",
-          "operationPage",
-          "columnPage",
-          "dataPreviewContainer",
-          "createCustomOperationPage",
-          "editCustomOperationPage",
-          "manageCustomOperationsPage",
-          "manageCategoriesPage",
-        ];
-        pages.forEach((id) => {
-          document.getElementById(id).style.display = "none";
-        });
-        // Show the selected page
-        document.getElementById(pageId).style.display = "block";
-
-        // Update navigation history
-        if (navigationHistory[navigationHistory.length - 1] !== pageId) {
-          navigationHistory.push(pageId);
-        }
-      }
-
-      // Reset selections function
-      function resetSelections() {
-        // Reset selection variables
-        selectedCategory = null;
-        selectedOperation = null;
-        selectedColumns = [];
-        selectedOperationRequiresInput = false;
-        selectedOperationPlaceholders = [];
-        selectedOperationRequiresColumns = false;
-
-        // Reset UI selections
-        // Deselect category
-        const categoryList = document.getElementById("categoryList");
-        if (categoryList) {
-          Array.from(categoryList.children).forEach((el) =>
-            el.classList.remove("selected")
-          );
-        }
-
-        // Clear operations list
-        const operationList = document.getElementById("operationList");
-        if (operationList) {
-          operationList.innerHTML = "";
-        }
-
-        // Deselect columns
-        const columnList = document.getElementById("columnList");
-        if (columnList) {
-          Array.from(columnList.children).forEach((el) =>
-            el.classList.remove("selected")
-          );
-        }
-
-        // Hide user input container
-        userInputContainer.style.display = "none";
-        userInputFieldsContainer.innerHTML = "";
-      }
-
-      // Event listener for "Start Analysis" button
-      document
-        .getElementById("startAnalysisButton")
-        .addEventListener("click", () => {
-          resetSelections(); // Reset previous selections
-          navigateToPage("categoryPage");
-          // Request categories from the extension
-          vscode.postMessage({ command: "requestCategories" });
-        });
-
-      // Event listener for "Manage Categories" button
-      document
-        .getElementById("manageCategoriesButton")
-        .addEventListener("click", () => {
-          navigateToPage("manageCategoriesPage");
-          // Request categories from the extension
-          vscode.postMessage({ command: "requestCategoriesForManagement" });
-        });
-
-      // Event listener for "Change File" button
-      document
-        .getElementById("changeFileButton")
-        .addEventListener("click", () => {
-          vscode.postMessage({ command: "changeFile" });
-        });
-
-      // Event listener for "Preview Data" button
-      document.getElementById("previewButton").addEventListener("click", () => {
-        vscode.postMessage({ command: "previewData" });
-      });
-
-      // Event listener for "Queue Operation" button
-      document
-        .getElementById("queueOperation")
-        .addEventListener("click", queueOperation);
-
-      // Event listener for "Perform Operation(s)" button
-      document
-        .getElementById("performOperations")
-        .addEventListener("click", () => {
-          if (operationQueue.length === 0) {
-            alert("No operations queued.");
-            return;
-          }
-
-          vscode.postMessage({
-            command: "performOperations",
-            operations: operationQueue,
-          });
-
-          // Clear the operation queue after performing
-          operationQueue = [];
-          updateOperationQueueDisplay();
-        });
-
-      // Function to queue an operation
-      function queueOperation() {
-        if (!selectedCategory || !selectedOperation) {
-          alert("Please ensure you have completed the operation selection.");
-          return;
-        }
-        if (selectedOperationRequiresColumns && selectedColumns.length === 0) {
-          alert("Please select at least one column for this operation.");
-          return;
-        }
-
-        let userInputs = [];
-        if (selectedOperationRequiresInput) {
-          const userInputFields = document.querySelectorAll(".userInputField");
-          userInputFields.forEach((input) => {
-            userInputs.push(input.value.trim());
-          });
-        }
-
-        // Add the operation to the queue
-        operationQueue.push({
-          category: selectedCategory,
-          operationName: selectedOperation,
-          columns: selectedColumns.slice(),
-          userInputs: userInputs,
-        });
-
-        // Update the operation queue display
-        updateOperationQueueDisplay();
-
-        // Reset selections for the next operation
-        resetSelections();
-        navigateToPage("mainMenu");
-      }
-
-      // Function to update the displayed operation queue
-      function updateOperationQueueDisplay() {
-        const operationQueueList = document.getElementById("operationQueue");
-        operationQueueList.innerHTML = ""; // Clear the list
-
-        operationQueue.forEach((op, index) => {
-          let listItem = document.createElement("li");
-          listItem.textContent = `${index + 1}. ${
-            op.operationName
-          } on [${op.columns.join(", ")}]`;
-          if (op.userInputs && op.userInputs.length > 0) {
-            listItem.textContent += ` with inputs: "${op.userInputs.join(
-              '", "'
-            )}"`;
-          }
-          operationQueueList.appendChild(listItem);
-        });
-      }
-
-      // Event listeners for "Back" buttons
-      document.querySelectorAll(".backButton").forEach((button) => {
-        button.addEventListener("click", () => {
-          navigationHistory.pop(); // Remove current page
-          const previousPage = navigationHistory.pop(); // Get the previous page
-          if (previousPage) {
-            navigateToPage(previousPage);
-          } else {
-            navigateToPage("mainMenu");
-          }
-        });
-      });
-
-      // Event listeners for "Main Menu" buttons
-      document.querySelectorAll(".mainMenuButton").forEach((button) => {
-        button.addEventListener("click", () => {
-          navigationHistory = [];
-          resetSelections();
-          navigateToPage("mainMenu");
-        });
-      });
-
-      // Category selection handling
-      function setCategoryOptions(categories) {
-        existingCategories = categories; // Store for later use
-        const categoryList = document.getElementById("categoryList");
-        categoryList.innerHTML = ""; // Clear previous categories
-        categories.forEach((category) => {
-          const option = document.createElement("li");
-          option.textContent = category;
-          option.addEventListener("click", () => {
-            Array.from(categoryList.children).forEach((el) =>
-              el.classList.remove("selected")
-            );
-            option.classList.add("selected");
-            selectedCategory = category;
-          });
-          categoryList.appendChild(option);
-        });
-      }
-
-      // Operation selection handling
-      function setOperationOptions(operations) {
-        const operationList = document.getElementById("operationList");
-        operationList.innerHTML = ""; // Clear previous operations
-        operations.forEach((operation) => {
-          const option = document.createElement("li");
-          option.textContent = operation.name;
-          option.addEventListener("click", () => {
-            Array.from(operationList.children).forEach((el) =>
-              el.classList.remove("selected")
-            );
-            option.classList.add("selected");
-            selectedOperation = operation.name;
-            selectedOperationRequiresInput = operation.needsUserInput || false;
-            selectedOperationPlaceholders =
-              operation.userInputPlaceholders || [];
-            selectedOperationRequiresColumns =
-              operation.requiresColumns || false;
-
-            // Show or hide the appropriate buttons
-            if (selectedOperationRequiresColumns) {
-              document.getElementById("nextFromOperation").style.display =
-                "inline-flex";
-              document.getElementById("finishOperation").style.display = "none";
-            } else {
-              document.getElementById("nextFromOperation").style.display =
-                "none";
-              document.getElementById("finishOperation").style.display =
-                "inline-flex";
-            }
-
-            if (selectedOperationRequiresInput) {
-              userInputContainer.style.display = "block";
-              userInputFieldsContainer.innerHTML = ""; // Clear previous inputs
-
-              selectedOperationPlaceholders.forEach((placeholder, index) => {
-                const inputDiv = document.createElement("div");
-                inputDiv.className = "user-input-item";
-
-                const label = document.createElement("label");
-                label.textContent = placeholder;
-
-                const inputField = document.createElement("input");
-                inputField.type = "text";
-                inputField.className = "userInputField";
-                inputField.dataset.index = index;
-                inputField.required = true;
-
-                inputDiv.appendChild(label);
-                inputDiv.appendChild(inputField);
-                userInputFieldsContainer.appendChild(inputDiv);
-              });
-            } else {
-              userInputContainer.style.display = "none";
-            }
-          });
-          operationList.appendChild(option);
-        });
-      }
-
-      // Columns selection handling
-      function setColumnOptions(columns) {
-        const columnList = document.getElementById("columnList");
-        columnList.innerHTML = ""; // Clear previous columns
-        columns.forEach((column) => {
-          const option = document.createElement("li");
-          option.textContent = column;
-          option.addEventListener("click", () => {
-            if (option.classList.contains("selected")) {
-              option.classList.remove("selected");
-              selectedColumns = selectedColumns.filter((col) => col !== column);
-            } else {
-              option.classList.add("selected");
-              selectedColumns.push(column);
-            }
-          });
-          columnList.appendChild(option);
-        });
-      }
-
-      // Next button from Category Page
-      document
-        .getElementById("nextFromCategory")
-        .addEventListener("click", () => {
-          if (!selectedCategory) {
-            alert("Please select a category.");
-            return;
-          }
-          // Request operations for the selected category
-          vscode.postMessage({
-            command: "categorySelected",
-            category: selectedCategory,
-          });
-          navigateToPage("operationPage");
-        });
-
-      // Next button from Operation Page
-      document
-        .getElementById("nextFromOperation")
-        .addEventListener("click", () => {
-          if (!selectedOperation) {
-            alert("Please select an operation.");
-            return;
-          }
-          navigateToPage("columnPage");
-        });
-
-      // Finish button on Operation Page (for operations that don't require columns)
-      document
-        .getElementById("finishOperation")
-        .addEventListener("click", () => {
-          if (!selectedOperation) {
-            alert("Please select an operation.");
-            return;
-          }
-          navigateToPage("mainMenu");
-        });
-
-      // Finish button on Columns Page
-      document.getElementById("finishColumns").addEventListener("click", () => {
-        if (selectedOperationRequiresColumns && selectedColumns.length === 0) {
-          alert("Please select at least one column.");
-          return;
-        }
-        navigateToPage("mainMenu");
-      });
-
-      // Display data preview
-      function displayDataPreview(data) {
-        const dataPreviewTable = document.getElementById("dataPreviewTable");
-        dataPreviewTable.innerHTML = ""; // Clear previous preview data
-        data.forEach((row, index) => {
-          const rowElement = document.createElement("tr");
-          row.forEach((cell) => {
-            const cellElement = document.createElement(
-              index === 0 ? "th" : "td"
-            );
-            cellElement.textContent = cell;
-            rowElement.appendChild(cellElement);
-          });
-          dataPreviewTable.appendChild(rowElement);
-        });
-        navigateToPage("dataPreviewContainer"); // Show the preview page
-      }
-
-      // Event listener for "Create Custom Operation" button
-      document
-        .getElementById("createCustomOperationButton")
-        .addEventListener("click", () => {
-          navigateToPage("createCustomOperationPage");
-        });
-
-      // Event listener for "Manage Custom Operations" button
-      document
-        .getElementById("manageCustomOperationsButton")
-        .addEventListener("click", () => {
-          navigateToPage("manageCustomOperationsPage");
-          // Request custom operations from the extension
-          vscode.postMessage({ command: "requestCustomOperations" });
-        });
-
-      // Function to display custom operations
-      function displayCustomOperations(customOperations) {
-        const customOperationsList = document.getElementById(
-          "customOperationsList"
-        );
-        customOperationsList.innerHTML = ""; // Clear previous entries
-
-        customOperations.forEach((operation) => {
-          const listItem = document.createElement("li");
-          listItem.className = "custom-operation-item";
-          listItem.innerHTML = `
-            <div class="operation-details">
-              <span class="operation-name">${operation.name}</span>
-              <span class="operation-category">(${operation.category})</span>
-            </div>
-            <div class="operation-buttons">
-              <button class="edit-operation-button" data-filename="${operation.fileName}">
-                <i class="fas fa-edit"></i> Edit
-              </button>
-              <button class="delete-operation-button" data-filename="${operation.fileName}">
-                <i class="fas fa-trash-alt"></i> Delete
-              </button>
-            </div>
-          `;
-
-          customOperationsList.appendChild(listItem);
-        });
-
-        // Add event listeners for delete buttons
-        const deleteButtons = customOperationsList.querySelectorAll(
-          ".delete-operation-button"
-        );
-        deleteButtons.forEach((button) => {
-          button.addEventListener("click", (event) => {
-            const fileName = event.currentTarget.dataset.filename;
-            // Send a message to the extension to confirm deletion
-            vscode.postMessage({
-              command: "confirmDeleteCustomOperation",
-              fileName: fileName,
-            });
-          });
-        });
-
-        // Add event listeners for edit buttons
-        const editButtons = customOperationsList.querySelectorAll(
-          ".edit-operation-button"
-        );
-        editButtons.forEach((button) => {
-          button.addEventListener("click", (event) => {
-            const fileName = event.currentTarget.dataset.filename;
-            // Send a message to the extension to request operation details
-            vscode.postMessage({
-              command: "requestOperationDetails",
-              fileName: fileName,
-            });
-          });
-        });
-      }
-
-      // Function to display categories in the Manage Categories Page
-      function displayCategoriesForManagement(categories) {
-        const categoriesList = document.getElementById("categoriesList");
-        categoriesList.innerHTML = ""; // Clear previous entries
-
-        categories.forEach((category) => {
-          const listItem = document.createElement("li");
-          listItem.className = "category-item";
-          listItem.innerHTML = `
-            <span><strong>${category}</strong></span>
-            <button class="delete-category-button" data-category="${category}">
-              <i class="fas fa-trash-alt"></i> Delete
-            </button>
-          `;
-
-          categoriesList.appendChild(listItem);
-        });
-
-        // Add event listeners for delete buttons
-        const deleteButtons = categoriesList.querySelectorAll(
-          ".delete-category-button"
-        );
-        deleteButtons.forEach((button) => {
-          button.addEventListener("click", (event) => {
-            const categoryName = event.currentTarget.dataset.category;
-            // Send a message to the extension to confirm deletion
-            vscode.postMessage({
-              command: "confirmDeleteCategory",
-              category: categoryName,
-            });
-          });
-        });
-      }
-
-      // Show or hide the user inputs container based on the checkbox
-      document
-        .getElementById("needsUserInput")
-        .addEventListener("change", function () {
-          const userInputsContainer = document.getElementById(
-            "userInputsContainer"
-          );
-          if (this.checked) {
-            userInputsContainer.style.display = "block";
-          } else {
-            userInputsContainer.style.display = "none";
-            // Clear the user inputs list
-            document.getElementById("userInputsList").innerHTML = "";
-          }
-        });
-
-      // Handle adding user input placeholders
-      document
-        .getElementById("addUserInputButton")
-        .addEventListener("click", function () {
-          const userInputsList = document.getElementById("userInputsList");
-          const inputCount = userInputsList.children.length;
-
-          const inputDiv = document.createElement("div");
-          inputDiv.className = "user-input-item";
-
-          const label = document.createElement("label");
-          label.textContent = `User Input Placeholder ${inputCount + 1}:`;
-
-          const inputField = document.createElement("input");
-          inputField.type = "text";
-          inputField.className = "userInputPlaceholder";
-          inputField.required = true;
-
-          inputDiv.appendChild(label);
-          inputDiv.appendChild(inputField);
-          userInputsList.appendChild(inputDiv);
-        });
-
-      // Event listener for "Remove Last User Input" button
-      document
-        .getElementById("removeUserInputButton")
-        .addEventListener("click", function () {
-          const userInputsList = document.getElementById("userInputsList");
-          if (userInputsList.children.length > 0) {
-            userInputsList.removeChild(userInputsList.lastChild);
-          }
-        });
-
-      // Handle the custom operation form submission
-      document
-        .getElementById("customOperationForm")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
-          const operationName = document.getElementById("operationName").value;
-          let operationCategory = operationCategoryInput.value.trim();
-          const needsUserInput =
-            document.getElementById("needsUserInput").checked;
-          const operationCode = document.getElementById("operationCode").value;
-          const requiresColumns =
-            document.getElementById("requiresColumns").checked;
-
-          // Collect multiple user input placeholders
-          let userInputPlaceholders = [];
-          if (needsUserInput) {
-            const userInputFields = document.querySelectorAll(
-              ".userInputPlaceholder"
-            );
-            userInputFields.forEach((input) => {
-              userInputPlaceholders.push(input.value.trim());
-            });
-          }
-
-          // Perform case-insensitive category matching
-          const matchedCategory = existingCategories.find(
-            (cat) => cat.toLowerCase() === operationCategory.toLowerCase()
-          );
-          if (matchedCategory) {
-            operationCategory = matchedCategory; // Use the existing category with original casing
-          }
-
-          // Validate operation code for column placeholders
-          const columnPlaceholderRegex = /&c\d+/;
-          if (!requiresColumns && columnPlaceholderRegex.test(operationCode)) {
-            alert(
-              "You cannot use &c0, &c1, etc., in the operation code when 'Requires Column Selection' is unchecked."
-            );
-            return;
-          }
-          if (requiresColumns && !columnPlaceholderRegex.test(operationCode)) {
-            alert(
-              "Operation code must contain at least one &c0, &c1, etc., when 'Requires Column Selection' is checked."
-            );
-            return;
-          }
-
-          // Send the data to the extension backend
-          vscode.postMessage({
-            command: "createCustomOperation",
-            data: {
-              name: operationName,
-              category: operationCategory,
-              needsUserInput: needsUserInput,
-              userInputPlaceholders: userInputPlaceholders,
-              operationCode: operationCode,
-              requiresColumns: requiresColumns, // Include this field
-            },
-          });
-
-          // Reset the form
-          this.reset();
-          document.getElementById("userInputsContainer").style.display = "none";
-          document.getElementById("userInputsList").innerHTML = "";
-
-          // Hide column placeholder note
-          document.getElementById("columnPlaceholderNote").style.display =
-            "none";
-
-          // Navigate back to main menu
-          navigateToPage("mainMenu");
-        });
-
-      // Event listener for "Reset All Fields" button
-      document
-        .getElementById("resetCustomOperationFormButton")
-        .addEventListener("click", function () {
-          // Reset the form
-          document.getElementById("customOperationForm").reset();
-          // Hide and clear the user inputs container
-          document.getElementById("userInputsContainer").style.display = "none";
-          document.getElementById("userInputsList").innerHTML = "";
-          // Hide column placeholder note
-          document.getElementById("columnPlaceholderNote").style.display =
-            "none";
-          // Hide category suggestions
-          categorySuggestionsContainer.style.display = "none";
-        });
-
-      // Event listeners for custom autocomplete in Create Operation Form
-      operationCategoryInput.addEventListener("input", onCategoryInputChange);
-
-      operationCategoryInput.addEventListener("focus", onCategoryInputFocus);
-
-      operationCategoryInput.addEventListener("blur", () => {
-        setTimeout(() => {
-          categorySuggestionsContainer.style.display = "none";
-        }, 200);
-      });
-
-      function onCategoryInputChange() {
-        const inputValue = operationCategoryInput.value.toLowerCase();
-        categorySuggestionsContainer.innerHTML = ""; // Clear previous suggestions
-
-        if (inputValue === "") {
-          categorySuggestionsContainer.style.display = "none";
-          return;
-        }
-
-        const filteredCategories = existingCategories.filter((category) =>
-          category.toLowerCase().includes(inputValue)
-        );
-
-        if (filteredCategories.length === 0) {
-          categorySuggestionsContainer.style.display = "none";
-          return;
-        }
-
-        filteredCategories.forEach((category) => {
-          const suggestionItem = document.createElement("div");
-          suggestionItem.classList.add("suggestion-item");
-          suggestionItem.textContent = category;
-
-          suggestionItem.addEventListener("click", () => {
-            operationCategoryInput.value = category;
-            categorySuggestionsContainer.innerHTML = "";
-            categorySuggestionsContainer.style.display = "none";
-          });
-
-          categorySuggestionsContainer.appendChild(suggestionItem);
-        });
-
-        categorySuggestionsContainer.style.display = "block";
-      }
-
-      function onCategoryInputFocus() {
-        if (operationCategoryInput.value !== "") {
-          onCategoryInputChange();
-        }
-      }
-
-      // Edit Custom Operation Form Handlers
-      const editOperationCategoryInput = document.getElementById(
-        "editOperationCategory"
-      );
-      const editCategorySuggestionsContainer = document.getElementById(
-        "editCategorySuggestions"
-      );
-
-      // Event listeners for custom autocomplete in Edit Operation Form
-      editOperationCategoryInput.addEventListener(
-        "input",
-        onEditCategoryInputChange
-      );
-
-      editOperationCategoryInput.addEventListener(
-        "focus",
-        onEditCategoryInputFocus
-      );
-
-      editOperationCategoryInput.addEventListener("blur", () => {
-        setTimeout(() => {
-          editCategorySuggestionsContainer.style.display = "none";
-        }, 200);
-      });
-
-      function onEditCategoryInputChange() {
-        const inputValue = editOperationCategoryInput.value.toLowerCase();
-        editCategorySuggestionsContainer.innerHTML = ""; // Clear previous suggestions
-
-        if (inputValue === "") {
-          editCategorySuggestionsContainer.style.display = "none";
-          return;
-        }
-
-        const filteredCategories = existingCategories.filter((category) =>
-          category.toLowerCase().includes(inputValue)
-        );
-
-        if (filteredCategories.length === 0) {
-          editCategorySuggestionsContainer.style.display = "none";
-          return;
-        }
-
-        filteredCategories.forEach((category) => {
-          const suggestionItem = document.createElement("div");
-          suggestionItem.classList.add("suggestion-item");
-          suggestionItem.textContent = category;
-
-          suggestionItem.addEventListener("click", () => {
-            editOperationCategoryInput.value = category;
-            editCategorySuggestionsContainer.innerHTML = "";
-            editCategorySuggestionsContainer.style.display = "none";
-          });
-
-          editCategorySuggestionsContainer.appendChild(suggestionItem);
-        });
-
-        editCategorySuggestionsContainer.style.display = "block";
-      }
-
-      function onEditCategoryInputFocus() {
-        if (editOperationCategoryInput.value !== "") {
-          onEditCategoryInputChange();
-        }
-      }
-
-      // Show or hide the user inputs container based on the checkbox in Edit Form
-      document
-        .getElementById("editNeedsUserInput")
-        .addEventListener("change", function () {
-          const userInputsContainer = document.getElementById(
-            "editUserInputsContainer"
-          );
-          if (this.checked) {
-            userInputsContainer.style.display = "block";
-          } else {
-            userInputsContainer.style.display = "none";
-            // Clear the user inputs list
-            document.getElementById("editUserInputsList").innerHTML = "";
-          }
-        });
-
-      // Handle adding user input placeholders in Edit Form
-      document
-        .getElementById("editAddUserInputButton")
-        .addEventListener("click", function () {
-          const userInputsList = document.getElementById("editUserInputsList");
-          const inputCount = userInputsList.children.length;
-
-          const inputDiv = document.createElement("div");
-          inputDiv.className = "user-input-item";
-
-          const label = document.createElement("label");
-          label.textContent = `User Input Placeholder ${inputCount + 1}:`;
-
-          const inputField = document.createElement("input");
-          inputField.type = "text";
-          inputField.className = "editUserInputPlaceholder";
-          inputField.required = true;
-
-          inputDiv.appendChild(label);
-          inputDiv.appendChild(inputField);
-          userInputsList.appendChild(inputDiv);
-        });
-
-      // Event listener for "Remove Last User Input" button in Edit Form
-      document
-        .getElementById("editRemoveUserInputButton")
-        .addEventListener("click", function () {
-          const userInputsList = document.getElementById("editUserInputsList");
-          if (userInputsList.children.length > 0) {
-            userInputsList.removeChild(userInputsList.lastChild);
-          }
-        });
-
-      // Handle the edit operation form submission
-      document
-        .getElementById("editCustomOperationForm")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
-          const operationName =
-            document.getElementById("editOperationName").value;
-          let operationCategory = editOperationCategoryInput.value.trim();
-          const needsUserInput =
-            document.getElementById("editNeedsUserInput").checked;
-          const operationCode =
-            document.getElementById("editOperationCode").value;
-          const requiresColumns = document.getElementById(
-            "editRequiresColumns"
-          ).checked;
-          const fileName = document.getElementById(
-            "editOperationFileName"
-          ).value;
-
-          // Collect multiple user input placeholders
-          let userInputPlaceholders = [];
-          if (needsUserInput) {
-            const userInputFields = document.querySelectorAll(
-              ".editUserInputPlaceholder"
-            );
-            userInputFields.forEach((input) => {
-              userInputPlaceholders.push(input.value.trim());
-            });
-          }
-
-          // Perform case-insensitive category matching
-          const matchedCategory = existingCategories.find(
-            (cat) => cat.toLowerCase() === operationCategory.toLowerCase()
-          );
-          if (matchedCategory) {
-            operationCategory = matchedCategory; // Use the existing category with original casing
-          }
-
-          // Validate operation code for column placeholders
-          const columnPlaceholderRegex = /&c\d+/;
-          if (!requiresColumns && columnPlaceholderRegex.test(operationCode)) {
-            alert(
-              "You cannot use &c0, &c1, etc., in the operation code when 'Requires Column Selection' is unchecked."
-            );
-            return;
-          }
-          if (requiresColumns && !columnPlaceholderRegex.test(operationCode)) {
-            alert(
-              "Operation code must contain at least one &c0, &c1, etc., when 'Requires Column Selection' is checked."
-            );
-            return;
-          }
-
-          // Send the data to the extension backend
-          vscode.postMessage({
-            command: "updateCustomOperation",
-            data: {
-              name: operationName,
-              category: operationCategory,
-              needsUserInput: needsUserInput,
-              userInputPlaceholders: userInputPlaceholders,
-              operationCode: operationCode,
-              requiresColumns: requiresColumns, // Include this field
-              fileName: fileName, // Include the file name for updating
-            },
-          });
-
-          // Reset the form
-          this.reset();
-          document.getElementById("editUserInputsContainer").style.display =
-            "none";
-          document.getElementById("editUserInputsList").innerHTML = "";
-
-          // Hide column placeholder note
-          document.getElementById("editColumnPlaceholderNote").style.display =
-            "none";
-
-          // Navigate back to Manage Custom Operations page
-          navigateToPage("manageCustomOperationsPage");
-          // Refresh the custom operations list
-          vscode.postMessage({ command: "requestCustomOperations" });
-        });
-
-      // Event listener for "Cancel" button in Edit Form
-      document
-        .getElementById("cancelEditOperationButton")
-        .addEventListener("click", function () {
-          // Reset the form
-          document.getElementById("editCustomOperationForm").reset();
-          // Hide and clear the user inputs container
-          document.getElementById("editUserInputsContainer").style.display =
-            "none";
-          document.getElementById("editUserInputsList").innerHTML = "";
-          // Hide column placeholder note
-          document.getElementById("editColumnPlaceholderNote").style.display =
-            "none";
-          // Hide category suggestions
-          editCategorySuggestionsContainer.style.display = "none";
-
-          // Navigate back to Manage Custom Operations page
-          navigateToPage("manageCustomOperationsPage");
-        });
-
-      // Show or hide the column placeholder note based on the checkbox
-      document
-        .getElementById("requiresColumns")
-        .addEventListener("change", function () {
-          const columnPlaceholderNote = document.getElementById(
-            "columnPlaceholderNote"
-          );
-          if (this.checked) {
-            columnPlaceholderNote.style.display = "none";
-          } else {
-            columnPlaceholderNote.style.display = "block";
-          }
-        });
-
-      // Show or hide the column placeholder note based on the checkbox in Edit Form
-      document
-        .getElementById("editRequiresColumns")
-        .addEventListener("change", function () {
-          const columnPlaceholderNote = document.getElementById(
-            "editColumnPlaceholderNote"
-          );
-          if (this.checked) {
-            columnPlaceholderNote.style.display = "none";
-          } else {
-            columnPlaceholderNote.style.display = "block";
-          }
-        });
-
-      // Message handling from the extension
-      window.addEventListener("message", (event) => {
-        const message = event.data;
-        switch (message.command) {
-          case "setColumns":
-            setColumnOptions(message.columns);
-            break;
-          case "setCategories":
-            setCategoryOptions(message.categories);
-            break;
-          case "setCategoriesForManagement":
-            displayCategoriesForManagement(message.categories);
-            break;
-          case "setOperations":
-            setOperationOptions(message.operations);
-            break;
-          case "showDataPreview":
-            displayDataPreview(message.data);
-            break;
-          case "setCustomOperations":
-            displayCustomOperations(message.customOperations);
-            break;
-          case "setOperationDetails":
-            populateEditOperationForm(message.operation);
-            break;
-          case "categoryDeleted":
-            // If the current page is managing categories, refresh the list
-            if (
-              navigationHistory[navigationHistory.length - 1] ===
-              "manageCategoriesPage"
-            ) {
-              vscode.postMessage({ command: "requestCategoriesForManagement" });
-            }
-            break;
-          case "deleteCategorySuccess":
-            vscode.window.showInformationMessage(message.message);
-            break;
-          case "deleteCategoryFailure":
-            vscode.window.showErrorMessage(message.message);
-            break;
-          case "deleteOperationSuccess":
-            vscode.window.showInformationMessage(message.message);
-            // Refresh the custom operations list
-            vscode.postMessage({ command: "requestCustomOperations" });
-            break;
-          case "deleteOperationFailure":
-            vscode.window.showErrorMessage(message.message);
-            break;
-          default:
-            console.error(`Unknown command received: ${message.command}`);
-            break;
-        }
-      });
-
-      // Function to populate the Edit Operation Form with existing data
-      function populateEditOperationForm(operation) {
-        document.getElementById("editOperationName").value = operation.name;
-        document.getElementById("editOperationCategory").value =
-          operation.category;
-        document.getElementById("editNeedsUserInput").checked =
-          operation.needsUserInput;
-        document.getElementById("editOperationCode").value =
-          operation.rawOperationCode;
-        document.getElementById("editRequiresColumns").checked =
-          operation.requiresColumns;
-        document.getElementById("editOperationFileName").value =
-          operation.fileName;
-
-        // Handle user input placeholders
-        const userInputsContainer = document.getElementById(
-          "editUserInputsContainer"
-        );
-        const userInputsList = document.getElementById("editUserInputsList");
-
-        if (operation.needsUserInput) {
-          userInputsContainer.style.display = "block";
-          userInputsList.innerHTML = ""; // Clear any existing inputs
-
-          operation.userInputPlaceholders.forEach((placeholder, index) => {
-            const inputDiv = document.createElement("div");
-            inputDiv.className = "user-input-item";
-
-            const label = document.createElement("label");
-            label.textContent = `User Input Placeholder ${index + 1}:`;
-
-            const inputField = document.createElement("input");
-            inputField.type = "text";
-            inputField.className = "editUserInputPlaceholder";
-            inputField.required = true;
-            inputField.value = placeholder;
-
-            inputDiv.appendChild(label);
-            inputDiv.appendChild(inputField);
-            userInputsList.appendChild(inputDiv);
-          });
-        } else {
-          userInputsContainer.style.display = "none";
-          userInputsList.innerHTML = "";
-        }
-
-        // Show or hide the column placeholder note
-        const columnPlaceholderNote = document.getElementById(
-          "editColumnPlaceholderNote"
-        );
-        if (operation.requiresColumns) {
-          columnPlaceholderNote.style.display = "none";
-        } else {
-          columnPlaceholderNote.style.display = "block";
-        }
-
-        // Navigate to the Edit Custom Operation Page
-        navigateToPage("editCustomOperationPage");
-      }
-
-      // Notify the extension that the webview is ready
-      vscode.postMessage({ command: "ready" });
-    </script>
+    <script type="module" src="js/main.js"></script>
+    <script src="js/checkboxes.js"></script>
   </body>
 </html>
