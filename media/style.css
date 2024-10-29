@@ -265,6 +265,46 @@ th {
   background-color: #f9f9f9;
 }
 
+/* Styles for the Operation Queue Items */
+.queue-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.queue-item:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.queue-item-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.queue-item-button {
+  background-color: var(--secondary-color);
+  color: #fff;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.queue-item-button:hover {
+  background-color: var(--secondary-color-hover);
+}
+
+.queue-item-button:active {
+  transform: scale(0.95);
+}
+
+.queue-item-button i {
+  margin: 0;
+}
+
 /* Custom Operation Form Styles */
 #customOperationForm,
 #editCustomOperationForm {
