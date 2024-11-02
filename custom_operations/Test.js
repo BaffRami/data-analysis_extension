@@ -1,9 +1,10 @@
+
 module.exports = {
-  name: "Data Query",
+  name: "Test",
   category: "Data Cleaning",
   needsUserInput: false,
-  requiresColumns: true,
+  requiresColumns: false,
   requiresColumnValues: false,
   userInputPlaceholders: [],
-  operationCode: `df.query('&c0 == &c1')`, // Store the raw operation code
+  operationCode: `copy`, // Store the raw operation code
 };

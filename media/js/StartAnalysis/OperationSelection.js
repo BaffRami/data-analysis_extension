@@ -9,6 +9,26 @@ const userInputFieldsContainer = document.getElementById(
   "userInputFieldsContainer"
 );
 
+function validateUserInputs() {
+  const inputFields = document.querySelectorAll(".userInputField");
+  let allFilled = true;
+
+  inputFields.forEach((input) => {
+    if (!input.value.trim()) {
+      allFilled = false;
+      input.classList.add("input-error"); // Optional: add error styling
+    } else {
+      input.classList.remove("input-error"); // Remove error styling if filled
+    }
+  });
+
+  if (!allFilled) {
+    showMessage("Please fill in all required fields.");
+  }
+
+  return allFilled;
+}
+
 export function setOperationOptions(operations) {
   const operationList = document.getElementById("operationList");
   operationList.innerHTML = ""; // Clear previous operations
@@ -79,6 +99,9 @@ export function setupOperationPageEventListeners(navigationHistory) {
       showMessage("Please select an operation.");
       return;
     }
+    if (selections.selectedOperationRequiresInput && !validateUserInputs()) {
+      return; // Stop if validation fails
+    }
     navigateToPage("columnPage", navigationHistory);
   });
 
@@ -88,6 +111,9 @@ export function setupOperationPageEventListeners(navigationHistory) {
       showMessage("Please select an operation.");
       return;
     }
+    if (selections.selectedOperationRequiresInput && !validateUserInputs()) {
+      return;
+    } // Stop if validation fails
     navigateToPage("mainMenu", navigationHistory);
   });
 }

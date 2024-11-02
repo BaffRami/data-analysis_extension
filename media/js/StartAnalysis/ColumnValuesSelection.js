@@ -2,6 +2,7 @@
 
 import { selections } from "./Selections.js";
 import { navigateToPage } from "../navigation.js";
+import { showMessage } from "../DisplayFunctions/showMessage.js";
 
 export function displayColumnValues(values, columnName) {
   const columnValuesList = document.getElementById("columnValuesList");
@@ -85,6 +86,12 @@ export function setupColumnValuesPageEventListeners(
         selections.selectedColumns[selections.currentColumnIndex],
         vscode
       );
+    } else if (
+      (selections.currentColumnIndex =
+        selections.selectedColumns.length &&
+        selections.selectedValues.length == 0)
+    ) {
+      showMessage("Please select at least one value");
     } else {
       // All columns processed, proceed
       navigateToPage("mainMenu", navigationHistory);
