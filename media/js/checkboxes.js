@@ -1,5 +1,3 @@
-// checkboxes.js
-
 function toggleDisplay(checkboxId, containerId, listId = null) {
   document.getElementById(checkboxId).addEventListener("change", function () {
     const container = document.getElementById(containerId);

@@ -1,6 +1,6 @@
 # Data Analysis Extension
 
-Welcome to the **Data Analysis Extension** for Visual Studio Code! This extension is designed to streamline your data analysis workflow by integrating data operations directly into your Jupyter notebooks within VSCode.
+Welcome to the **Data Analysis Extension** for Visual Studio Code! This extension is designed to streamline your data analysis workflow by integrating data operations directly into your Jupyter notebooks within Virtual Studio Code.
 
 ## Table of Contents
 
@@ -33,7 +33,7 @@ Welcome to the **Data Analysis Extension** for Visual Studio Code! This extensio
 The **Data Analysis Extension** is a powerful tool designed to streamline your data analysis workflow within Visual Studio Code. It allows you to:
 
 - Load data files (CSV, Excel, JSON) into your Jupyter notebooks.
-- Perform custom data operations using pandas code snippets.
+- Perform custom data operations.
 - Create and manage custom operations and categories.
 - Preview your data directly within the extension.
 - Queue multiple operations and execute them in your notebook.
@@ -46,7 +46,6 @@ Before using the extension, ensure you have the following installed:
 - **Python Extension for VSCode**: For Jupyter notebook support.
 - **Jupyter Notebook**: Installed in your Python environment.
 - **Python Interpreter**: Python 3.x installed and configured in VSCode.
-- **Pandas Library**: Installed in your Python environment (pip install pandas).
 - **Optional Dependencies for File Types**:
 
   - **Reading Excel Files**: Install openpyxl for .xlsx files (pip install openpyxl).
@@ -56,7 +55,9 @@ Before using the extension, ensure you have the following installed:
 
 1.  **Clone or Download the Extension**:
 
-    - bashCopy codegit clone https://github.com/your-username/data-analysis-extension.git
+    - ```bash
+      git clone https://github.com/BaffRami/data-analysis_extension.git
+      ```
     - **Or Download the ZIP File**:
 
       - Download the repository as a ZIP file and extract it to your desired location.
@@ -70,8 +71,12 @@ Before using the extension, ensure you have the following installed:
 
     - Open a terminal in VSCode.
     - Navigate to the extension directory if not already there.
-    - bashCopy codenpm install
-    - bashCopy codepip install pandas openpyxl xlrd
+    - ```bash
+      npm install
+      ```
+    - ```bash
+      pip install openpyxl xlrd
+      ```
 
 4.  **Launch the Extension**:
 
@@ -89,9 +94,7 @@ Before using the extension, ensure you have the following installed:
 
 2.  **Activate the Extension**:
 
-    - Press Ctrl+Shift+P (Cmd+Shift+P on macOS) to open the command palette.
-    - Type **"Data Analysis: Select File"** and press Enter.
-    - Alternatively, you can find the command under **View > Command Palette**.
+    - Press Ctrl+Shift+D (Cmd+Shift+D on macOS) to open the webview.
 
 3.  **Select a Data File**:
 
@@ -101,7 +104,7 @@ Before using the extension, ensure you have the following installed:
 
 4.  **Load the Data**:
 
-    - Upon selecting the file, the extension will automatically insert code into your Jupyter notebook to load the data into a pandas DataFrame named df.
+    - Upon selecting the file, the extension will automatically insert code into your Jupyter notebook to load the data into a Pandas DataFrame named df.
 
 ## Main Features
 
@@ -114,7 +117,7 @@ Before using the extension, ensure you have the following installed:
   - Select a category from the list.
   - Click **"Next"** to proceed to the operation selection.
   - Choose an operation and follow the prompts.
-  - Queue the operation or perform it immediately.
+  - Queue the operation or insert it immediately.
 
 ### 2\. Create Custom Operation
 
@@ -151,7 +154,6 @@ Before using the extension, ensure you have the following installed:
 
   - Click on the **"Change File"** button (folder icon).
   - Select a new data file from your system.
-  - The new file will be loaded into your notebook.
 
 ### 6\. Preview Data
 
@@ -169,6 +171,7 @@ Before using the extension, ensure you have the following installed:
   - After selecting an operation, click **"Queue Operation"** (plus icon).
   - The operation will be added to the queue displayed on the right.
   - Repeat to add more operations.
+  - You can dequeue operations and/or swap their positions (arrows and bin icon)
 
 ### 8\. Perform Operations
 
@@ -208,7 +211,7 @@ Custom operations allow you to define reusable code snippets that perform specif
 
     - **Operation Code**:
 
-      - Write the pandas code that performs the operation.
+      - Write the code that performs the operation.
       - Use placeholders for dynamic values:
 
         - **&c0, &c1, etc.** for selected columns.
@@ -229,7 +232,11 @@ Custom operations allow you to define reusable code snippets that perform specif
   - Placeholder: "Z-score Threshold"
 
 - **Requires Column Selection**: Yes
-- pythonCopy codefrom scipy import statsimport numpy as npdf = df\[(np.abs(stats.zscore(df\['&c0'\])) < &i0)\]
+- ```python
+  from scipy import stats
+  import numpy as np
+  df = df[(np.abs(stats.zscore(df['&c0'])) < &i0)]
+  ```
 
 ### Editing a Custom Operation
 
@@ -261,8 +268,12 @@ Custom operations allow you to define reusable code snippets that perform specif
 
     - Install the required library:
 
-      - bashCopy codepip install openpyxl
-      - bashCopy codepip install xlrd
+      - ```bash
+        pip install openpyxl
+        ```
+      - ```bash
+        pip install xlrd
+        ```
 
     - Restart your Jupyter notebook kernel after installing.
 
@@ -275,12 +286,7 @@ Custom operations allow you to define reusable code snippets that perform specif
 
   - The extension supports .csv, .xlsx, and .json files.
   - If you receive an error, check your file format.
-
-- **Operation Not Executing**:
-
-  - Verify that you have selected the necessary columns and provided required inputs.
-  - Check the pandas code in your custom operation for errors.
-  - Ensure that placeholders are correctly used (&c0, &i0, &v0, etc.).
+  - More file formats will be supported in the future
 
 - **Extension Not Responding**:
 
@@ -291,8 +297,8 @@ Custom operations allow you to define reusable code snippets that perform specif
 
 We value your feedback! If you encounter any issues or have suggestions:
 
-- **Report Issues**: Visit the [GitHub repository](https://github.com/your-repo/data-analysis-extension) to open an issue.
+- **Report Issues**: Visit the [GitHub repository](https://github.com/BaffRami/data-analysis_extension.git) to open an issue.
 - **Feature Requests**: Share your ideas for new features or improvements.
-- **Contact**: Reach out via email at [support@example.com](mailto:support@example.com).
+- **Contact**: Reach out via email at [s6rabaff@uni-bonn.de](mailto:support@example.com).
 
 Thank you for using the **Data Analysis Extension**! We hope it enhances your data analysis workflow in Visual Studio Code.

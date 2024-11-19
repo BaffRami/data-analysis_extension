@@ -1,10 +1,10 @@
 
 module.exports = {
-  name: "Histogram",
+  name: "Histogram 1C",
   category: "Plotting",
   needsUserInput: false,
   requiresColumns: true,
-  requiresColumnValues: false,
+  requiresColumnValues: false, 
   userInputPlaceholders: [],
   operationCode: `import matplotlib.pyplot as plt
 import seaborn as sns
@@ -14,6 +14,5 @@ sns.histplot(df['&c0'], kde=True)
 plt.title('Histogram of &c0')
 plt.xlabel('&c0')
 plt.ylabel('Frequency')
-plt.show()
-`, // Store the raw operation code
+plt.show()`, // Store the raw operation code
 };

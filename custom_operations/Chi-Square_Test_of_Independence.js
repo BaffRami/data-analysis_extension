@@ -2,23 +2,25 @@
 module.exports = {
   name: "Chi-Square Test of Independence",
   category: "Tests",
-  needsUserInput: true,
-  requiresColumns: false,
-  userInputPlaceholders: ["data row1 (use x, y, z, etc...)","data row2 (use x, y, z, etc...)"],
-  operationCode: `import scipy.stats as stats
+  needsUserInput: false,
+  requiresColumns: true,
+  requiresColumnValues: false, 
+  userInputPlaceholders: [],
+  operationCode: `from scipy.stats import chi2_contingency
+import pandas as pd
 
-data = [[&i0],
-        [&i1]]
+# Create a contingency table
+contingency_table = pd.crosstab(df['&c0'], df['&c1'])
 
-stats.chi2_contingency(data)`, // Store the raw operation code
-  operation: (columns, userInputs) => {
-    return `
-import scipy.stats as stats
+# Perform the Chi-Square Test
+chi2, p_value, dof, expected = chi2_contingency(contingency_table)
 
-data = [[${userInputs[0]}],
-        [${userInputs[1]}]]
-
-stats.chi2_contingency(data)
-    `;
-  },
+# Print the results
+print("Chi-Square Test Results:")
+print(f"Chi-Square Statistic: {chi2}")
+print(f"P-value: {p_value}")
+print(f"Degrees of Freedom: {dof}")
+print("Expected Frequencies:")
+print(expected)
+`, // Store the raw operation code
 };

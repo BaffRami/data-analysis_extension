@@ -1,5 +1,3 @@
-// operationHandler.js
-
 const vscode = require("vscode");
 const { addCodeCell } = require("./notebookUtils");
 

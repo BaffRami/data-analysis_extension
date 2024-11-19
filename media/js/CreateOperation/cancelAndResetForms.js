@@ -1,5 +1,3 @@
-// cancelAndResetForms.js
-
 export function CancelEditCustomOperation(
   editCategorySuggestionsContainer,
   navigateToPage,

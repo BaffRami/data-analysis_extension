@@ -1,5 +1,3 @@
-// Selections.js
-
 export const selections = {
   selectedCategory: null,
   selectedOperation: null,

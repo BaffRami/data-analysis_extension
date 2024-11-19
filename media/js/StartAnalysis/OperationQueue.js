@@ -1,5 +1,3 @@
-// OperationQueue.js
-
 import { navigateToPage } from "../navigation.js";
 import { showMessage } from "../DisplayFunctions/showMessage.js";
 import { selections, resetSelections } from "./Selections.js";

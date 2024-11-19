@@ -1,5 +1,3 @@
-// navigation.js
-
 // Function to navigate to a specific page
 export function navigateToPage(pageId, navigationHistory) {
   const pages = [

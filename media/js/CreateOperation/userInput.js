@@ -1,5 +1,3 @@
-// userInput.js
-
 export function addUserInput() {
   const userInputsList = document.getElementById("userInputsList");
   const inputCount = userInputsList.children.length;
@@ -15,6 +13,7 @@ export function addUserInput() {
   inputField.className = "userInputPlaceholder";
   inputField.required = true;
 
+  // Append label and input field to the input container
   inputDiv.appendChild(label);
   inputDiv.appendChild(inputField);
   userInputsList.appendChild(inputDiv);
@@ -42,6 +41,7 @@ export function addUserInputEdit() {
   inputField.className = "editUserInputPlaceholder";
   inputField.required = true;
 
+  // Append label and input field to the input container
   inputDiv.appendChild(label);
   inputDiv.appendChild(inputField);
   userInputsList.appendChild(inputDiv);

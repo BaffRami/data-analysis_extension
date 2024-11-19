@@ -1,6 +1,6 @@
 
 module.exports = {
-  name: "Bar Chart 1C",
+  name: "Box Plot",
   category: "Plotting",
   needsUserInput: false,
   requiresColumns: true,
@@ -10,9 +10,9 @@ module.exports = {
 import seaborn as sns
 
 plt.figure(figsize=(10, 6))
-sns.countplot(x='&c0', data=df)
-plt.title('Bar Chart of &c0')
+sns.boxplot(x='&c0', y='&c1', data=df)
+plt.title('Box Plot of &c1 by &c0')
 plt.xlabel('&c0')
-plt.ylabel('Count')
+plt.ylabel('&c1')
 plt.show()`, // Store the raw operation code
 };

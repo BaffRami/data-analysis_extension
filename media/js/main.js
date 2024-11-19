@@ -1,5 +1,3 @@
-// main.js
-
 const vscode = acquireVsCodeApi();
 
 import { navigateToPage, goBack, resetNavigation } from "./navigation.js";
@@ -56,7 +54,6 @@ import {
   setupColumnValuesPageEventListeners,
 } from "./StartAnalysis/ColumnValuesSelection.js";
 
-// Variables
 let navigationHistory = [];
 
 // Event listener for "Start Analysis" button

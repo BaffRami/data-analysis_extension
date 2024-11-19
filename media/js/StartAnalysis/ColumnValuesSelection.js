@@ -1,5 +1,3 @@
-// ColumnValuesSelection.js
-
 import { selections } from "./Selections.js";
 import { navigateToPage } from "../navigation.js";
 import { showMessage } from "../DisplayFunctions/showMessage.js";

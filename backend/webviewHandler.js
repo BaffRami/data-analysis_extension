@@ -1,8 +1,6 @@
-// webviewHandler.js
-
 const vscode = require("vscode");
 const path = require("path");
-const fs = require("fs"); // Add this if not already present
+const fs = require("fs");
 const {
   loadCustomOperations,
   getCustomOperationsByCategory,

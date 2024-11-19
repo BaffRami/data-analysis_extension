@@ -1,13 +1,10 @@
-module.exports = {
-  name: "Fill Missing Values",
-  category: "Data Cleaning",
-  needsUserInput: true,
-  userInputPlaceholders: ["Value :"],
-  requiresColumns: true,
-  operation: (columns, userInputs) => {
-    return `
-df['${columns[0]}'] = df['${columns[0]}'].fillna("${userInputs[0]}")
 
-    `;
-  },
+module.exports = {
+  name: "Fill Missing Values with mean",
+  category: "Data Cleaning",
+  needsUserInput: false,
+  requiresColumns: true,
+  requiresColumnValues: false, 
+  userInputPlaceholders: [],
+  operationCode: `df['&c0'].fillna(df['&c0'].mean(), inplace=True)`, // Store the raw operation code
 };

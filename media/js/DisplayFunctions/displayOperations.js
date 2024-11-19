@@ -4,6 +4,7 @@ export function displayCustomOperations(customOperations, vscode) {
   const customOperationsList = document.getElementById("customOperationsList");
   customOperationsList.innerHTML = ""; // Clear previous entries
 
+  // Create a list item with edit and delete buttons for each custom operation
   customOperations.forEach((operation) => {
     const listItem = document.createElement("li");
     listItem.className = "custom-operation-item";
@@ -22,6 +23,7 @@ export function displayCustomOperations(customOperations, vscode) {
       </div>
     `;
 
+    // Append the list item to the custom operations list
     customOperationsList.appendChild(listItem);
   });
 

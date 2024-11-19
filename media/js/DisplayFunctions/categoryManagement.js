@@ -1,9 +1,8 @@
-// categoryManagement.js
-
 export function displayCategoriesForManagement(categories, vscode) {
   const categoriesList = document.getElementById("categoriesList");
   categoriesList.innerHTML = ""; // Clear previous entries
 
+  // Create a list item with a delete button for each category
   categories.forEach((category) => {
     const listItem = document.createElement("li");
     listItem.className = "category-item";
@@ -14,6 +13,7 @@ export function displayCategoriesForManagement(categories, vscode) {
       </button>
     `;
 
+    // Append the list item to the categories list
     categoriesList.appendChild(listItem);
   });
 

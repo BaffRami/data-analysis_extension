@@ -1,5 +1,3 @@
-// OperationSelection.js
-
 import { selections } from "./Selections.js";
 import { showMessage } from "../DisplayFunctions/showMessage.js";
 import { navigateToPage } from "../navigation.js";
@@ -16,14 +14,14 @@ function validateUserInputs() {
   inputFields.forEach((input) => {
     if (!input.value.trim()) {
       allFilled = false;
-      input.classList.add("input-error"); // Optional: add error styling
+      input.classList.add("input-error"); // Add error styling for empty fields (later)
     } else {
-      input.classList.remove("input-error"); // Remove error styling if filled
+      input.classList.remove("input-error"); // Remove error styling if filled (later)
     }
   });
 
   if (!allFilled) {
-    showMessage("Please fill in all required fields.");
+    showMessage("Please fill in all required fields."); // Notify the user
   }
 
   return allFilled;
@@ -36,10 +34,13 @@ export function setOperationOptions(operations) {
     const option = document.createElement("li");
     option.textContent = operation.name;
     option.addEventListener("click", () => {
+      // Clear previous selection styling and select the clicked operation
       Array.from(operationList.children).forEach((el) =>
         el.classList.remove("selected")
       );
       option.classList.add("selected");
+
+      // Update the selections object with the selected operation's properties
       selections.selectedOperation = operation.name;
       selections.selectedOperationRequiresInput =
         operation.needsUserInput || false;
@@ -50,7 +51,7 @@ export function setOperationOptions(operations) {
       selections.selectedOperationRequiresColumnValues =
         operation.requiresColumnValues || false;
 
-      // Show or hide the appropriate buttons
+      // Toggle button visibility based on whether columns are required
       if (selections.selectedOperationRequiresColumns) {
         document.getElementById("nextFromOperation").style.display =
           "inline-flex";
@@ -61,6 +62,7 @@ export function setOperationOptions(operations) {
           "inline-flex";
       }
 
+      // Show or hide user input fields based on whether the operation requires inputs
       if (selections.selectedOperationRequiresInput) {
         userInputContainer.style.display = "block";
         userInputFieldsContainer.innerHTML = ""; // Clear previous inputs
@@ -88,7 +90,7 @@ export function setOperationOptions(operations) {
         userInputContainer.style.display = "none";
       }
     });
-    operationList.appendChild(option);
+    operationList.appendChild(option); // Add the option to the operation list
   });
 }
 

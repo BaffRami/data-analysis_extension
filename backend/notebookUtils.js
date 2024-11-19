@@ -1,5 +1,3 @@
-// notebookUtils.js
-
 const vscode = require("vscode");
 
 // Function to add code to a Jupyter notebook cell

@@ -1,5 +1,3 @@
-// messageHandler.js
-
 export function handleBackendMessages(
   vscode,
   event,
