@@ -1,17 +1,19 @@
 {
   "name": "data-analyse",
-  "displayName": "data_analyse",
-  "description": "",
+  "displayName": "Data Analysis",
+  "publisher": "your-publisher-id",
+  "description": "An extension to assist with data analysis in Jupyter notebooks.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.91.0"
   },
   "categories": [
-    "Other"
+    "Data Science"
   ],
   "main": "./extension.js",
   "activationEvents": [
-    "onCommand:data-analysis.selectFile"
+    "onCommand:data-analysis.selectFile",
+    "onNotebook:*"
   ],
   "contributes": {
     "commands": [
@@ -23,14 +25,14 @@
     "keybindings": [
       {
         "command": "data-analysis.selectFile",
-        "key": "ctrl+shift+c",
+        "key": "ctrl+shift+d",
         "when": "editorTextFocus"
       }
     ]
   },
-  "devDependencies": {
-    "vscode": "^1.1.37"
-  },
+  "extensionDependencies": [
+    "ms-toolsai.jupyter"
+  ],
   "dependencies": {
     "csv-parser": "^3.0.0",
     "xlsx": "^0.18.5"

@@ -1,13 +1,10 @@
 
 module.exports = {
-  name: "Drop Columns",
+  name: "Drop Column",
   category: "Data Cleaning",
-  needsUserInput: true,
-  userInputPlaceholders: ["Columns to Drop (multiple columns are separated by commas)"],
-  operation: (columns, userInputs) => {
-    return `
-df = df.drop(['${userInputs[0]}'], axis=1)
-
-    `;
-  },
+  needsUserInput: false,
+  requiresColumns: true,
+  requiresColumnValues: false, 
+  userInputPlaceholders: [],
+  operationCode: `df.drop(['&c0'], axis=1)`, // Store the raw operation code
 };
